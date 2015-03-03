@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <SwitchPreference
+        android:key="main_enable_switch"
+        android:title="@string/enable_nuntius"
+        />
+
+    <ListPreference
+        android:key="pref_min_notification_priority"
+        android:title="Minimum notification priority"
+        android:dialogTitle="Minimum notification priority"
+        android:entries="@array/pref_min_notification_priority_entries"
+        android:entryValues="@array/pref_min_notification_priority_values"
+        android:defaultValue="@string/pref_min_notification_priority_default" />
+
+</PreferenceScreen>
