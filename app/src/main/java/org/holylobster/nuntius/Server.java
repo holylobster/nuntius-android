@@ -160,7 +160,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 }
                 break;
             case "pref_min_notification_priority":
-                minNotificationPriority = sharedPreferences.getInt("pref_min_notification_priority", Notification.PRIORITY_DEFAULT);
+                minNotificationPriority = Integer.parseInt(sharedPreferences.getString("pref_min_notification_priority", String.valueOf(Notification.PRIORITY_DEFAULT)));
                 break;
             default:
         }
