@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bluetooth_not_available">El Bluetooth no está disponible en este dispositivo</string>
+    <string name="bluetooth_not_enabled">Nuntius requiere Bluetooth para activarse</string>
+    <string name="button_got_it">Vale</string>
+    <string name="dialog_ask_notification_access">Nuntius requiere el acceso a las notificaciones. Cuando se abran las preferencias de las notificationes, selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
+    <string name="enable_notification_toast_hint">Ahora selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
+    <string name="enable_nuntius">Activar Nuntius</string>
+    <string name="label_welcome_text">Nuntius te permite enviar las notificaciones a otros dispositivos. Comparte las notificaciones para Nuntius después de pulsar "Vale" y empareja el bluetooth con el dispositivo específico.</string>
+</resources>
