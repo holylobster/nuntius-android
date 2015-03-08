@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bluetooth_not_enabled">Nuntius wymaga aby Bluetooth był włączony</string>
+    <string name="button_got_it">Dobrze</string>
+    <string name="dialog_ask_notification_access">Nuntius wymaga dostępu do powiadomień. W chwili gdy ustawienia powiadomień zostaną otwarte, wybierz Nuntius "pole wyboru" i potwierdź. Następnie wciśnij "powrót".</string>
+    <string name="enable_nuntius">Włącz Nuntiusa</string>
+    <string name="label_welcome_text">Nuntius pozwala na wysłyanie powiadomień z innych urządzeń. Możliwość dzielenia powiadomień dla Nuntiusa uaktywnisz poprzez wciśnięcie "Dobrze" oraz połączenie bluetootha z odpowiednim urządzeniem.</string>
+    <string name="app_name" translatable="false"></string>
+    <string name="bluetooth_not_available">Bluetooth nie jest dostępny na tym urządzeniu</string>
+    <string name="enable_notification_toast_hint">Teraz wybierz Nuntius "pole wyboru" i potwierdź. Następnie wciśnij "powrót".</string>
+</resources>
