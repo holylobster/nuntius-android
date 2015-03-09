@@ -25,6 +25,11 @@ You will need to install Nuntius also on your computer.
 At the moment Nuntius is available on some Linux distributions, check here:
 * https://github.com/holylobster/nuntius-linux
 
+##Requirements
+* Bluetooth: we tested with Bluetooth 2.1 and it worked
+* Android: to intercept notifications we need at least Android 4.3 (API 18)
+* Sympathy: Nuntius is at a very early stage of development. Your participation and understanding is appreciated!
+
 ##Note
 User is required to enable notification permission from
 * "Settings > Security > Notification access"
