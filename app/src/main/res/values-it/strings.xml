@@ -7,4 +7,5 @@
     <string name="enable_notification_toast_hint">Ora seleziona Nuntius e conferma. Poi premi il bottone indietro.</string>
     <string name="enable_nuntius">Attiva Nuntius</string>
     <string name="label_welcome_text">Nuntius ti permette di ricevere su altri dispositivi le notifiche. Abilita la condivisione delle notifiche per Nuntius dopo aver premuto "Ok" e accoppia con il dispositivo che ti interessa. </string>
+    <string name="pref_license_title">Licenza</string>
 </resources>

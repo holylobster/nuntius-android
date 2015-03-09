@@ -8,5 +8,6 @@
     <string name="bluetooth_not_available">Bluetooth is not available on this device</string>
     <string name="bluetooth_not_enabled">Nuntius requires Bluetooth to be enabled</string>
     <string name="enable_notification_toast_hint">Now select Nuntius checkbox and confirm. Then hit the back button.</string>
+    <string name="pref_license_title">License</string>
 
 </resources>

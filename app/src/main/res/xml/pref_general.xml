@@ -13,4 +13,22 @@
         android:entryValues="@array/pref_min_notification_priority_values"
         android:defaultValue="@string/pref_min_notification_priority_default" />
 
+    <Preference
+        android:key="license"
+        android:title="@string/pref_license_title"
+        android:summary="@string/license_type">
+    </Preference>
+
+    <Preference
+        android:key="web_site"
+        android:title="@string/holylobster"
+        android:summary="@string/web_site">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="@string/web_site"
+            />
+
+    </Preference>
+
 </PreferenceScreen>

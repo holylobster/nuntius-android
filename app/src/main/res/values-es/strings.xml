@@ -7,4 +7,5 @@
     <string name="enable_notification_toast_hint">Ahora selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
     <string name="enable_nuntius">Activar Nuntius</string>
     <string name="label_welcome_text">Nuntius te permite enviar las notificaciones a otros dispositivos. Comparte las notificaciones para Nuntius después de pulsar "Vale" y empareja el bluetooth con el dispositivo específico.</string>
+    <string name="pref_license_title">Licencia</string>
 </resources>
