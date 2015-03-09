@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="dialog_ask_notification_access">Nuntius vyžaduje prístup k upozorneniam. Keď sa otvoria nastavenia upozornení, vyberte zaškrtávacie pole Nuntius a potvrďte ho. Potom stlačte tlačidlo späť.</string>
+<string name="button_got_it">Rozumiem</string>
+<string name="label_welcome_text">Nuntius vám umožňuje sprostredkovať upozornenia iným  zariadeniam. Stačí povoliť zdieľanie upozornení aplikácie Nuntius po ťuknutí na tlačidlo "Rozumiem" a spárovať dané zariadenie cez rozhranie bluetooth.</string>
+<string name="enable_nuntius">Povoliť Nuntius</string>
+<string name="bluetooth_not_available">Rozhranie Bluetooth nie je v tomto zariadení dostupné</string>
+<string name="bluetooth_not_enabled">Nuntius vyžaduje povolené rozhranie Bluetooth</string>
+<string name="enable_notification_toast_hint">Teraz vyberte zaškrtávacie pole Nuntius a potvrďte ho. Potom stlačte tlačidlo späť.</string>
+</resources>
