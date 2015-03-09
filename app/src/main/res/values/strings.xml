@@ -3,7 +3,7 @@
 
     <string name="dialog_ask_notification_access">Nuntius requires access to notifications. When the notification settings will open, select Nuntius checkbox and confirm. Then hit the back button.</string>
     <string name="button_got_it">Got it</string>
-    <string name="label_welcome_text">Nuntius allows you to proxy the notifications with other devices. Just enable the notification sharing for Nuntius after pressing "Got it" and pair the bluetooth with the specific device.</string>
+    <string name="label_welcome_text">Nuntius allows you to proxy the notifications with other devices. Just enable the notification sharing for Nuntius after pressing "Got it" and pair the Bluetooth with the specific device.</string>
     <string name="enable_nuntius">Enable Nuntius</string>
     <string name="bluetooth_not_available">Bluetooth is not available on this device</string>
     <string name="bluetooth_not_enabled">Nuntius requires Bluetooth to be enabled</string>
