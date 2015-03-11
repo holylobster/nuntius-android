@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array translatable="false" name="pref_min_notification_priority_entries">
+    <string-array name="pref_min_notification_priority_entries">
         <item>Min</item>
         <item>Low</item>
         <item>Default</item>
