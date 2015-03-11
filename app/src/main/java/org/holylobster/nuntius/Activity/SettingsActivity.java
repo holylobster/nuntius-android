@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.Activity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -30,6 +30,11 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.widget.Toast;
+
+import org.holylobster.nuntius.BluetoothServer.IntentRequestCodes;
+import org.holylobster.nuntius.BluetoothServer.Server;
+import org.holylobster.nuntius.BluetoothServer.NotificationListenerService;
+import org.holylobster.nuntius.R;
 
 public class SettingsActivity extends PreferenceActivity {
 

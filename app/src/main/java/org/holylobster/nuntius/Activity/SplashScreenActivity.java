@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,6 +24,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+
+import org.holylobster.nuntius.R;
 
 
 public class SplashScreenActivity extends Activity {

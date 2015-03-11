@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.BluetoothServer;
 
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
@@ -30,6 +30,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import org.holylobster.nuntius.BluetoothServer.NotificationListenerService;
 
 import java.io.IOException;
 import java.util.ArrayList;

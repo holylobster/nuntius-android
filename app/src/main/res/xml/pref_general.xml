@@ -15,6 +15,19 @@
         android:defaultValue="@string/pref_min_notification_priority_default" />
 
     <Preference
+        android:key="app_blacklist"
+        android:title="Application Blacklist"
+        android:summary="Blacklist App's notification from Nuntius">
+
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="org.holylobster.nuntius"
+            android:targetClass="org.holylobster.nuntius.Activity.ApplicationBlacklist"
+            />
+
+    </Preference>
+
+    <Preference
         android:key="license"
         android:title="@string/pref_license_title"
         android:summary="@string/license_type">
