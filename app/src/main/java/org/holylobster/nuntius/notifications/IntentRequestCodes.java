@@ -15,9 +15,13 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.notifications;
 
-public interface Handler {
-    void onMessageReceived(IncomingMessage message);
-    void onConnectionClosed(Connection connection);
+public final class IntentRequestCodes {
+
+    public static final int BT_REQUEST_ENABLE = 1001;
+    public static final String INTENT_SERVER_STATUS_CHANGE = "org.holylobster.nuntius.INTENT_SERVER_STATUS_CHANGE";
+
+    private IntentRequestCodes() {
+    }
 }

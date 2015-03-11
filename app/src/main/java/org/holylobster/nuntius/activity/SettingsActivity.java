@@ -20,7 +20,6 @@ package org.holylobster.nuntius.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -36,11 +35,10 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-
 import org.holylobster.nuntius.BuildConfig;
-import org.holylobster.nuntius.IntentRequestCodes;
-import org.holylobster.nuntius.NotificationListenerService;
 import org.holylobster.nuntius.R;
+import org.holylobster.nuntius.notifications.IntentRequestCodes;
+import org.holylobster.nuntius.notifications.NotificationListenerService;
 import org.holylobster.nuntius.Server;
 
 
@@ -48,10 +46,13 @@ public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
+    private static Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        context = getApplicationContext();
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
@@ -134,8 +135,10 @@ public class SettingsActivity extends ActionBarActivity {
                         summary = "...";
                         break;
                 }
-            } else {
+            } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
                 summary = getString(R.string.notification_not_enabled);
+            } else {
+                summary = "Something went wrong...";
             }
             preference.setSummary(summary);
         }
@@ -201,6 +204,10 @@ public class SettingsActivity extends ActionBarActivity {
             // Create the AlertDialog object and return it
             return builder.create();
         }
+    }
+
+    public static Context getContext(){
+        return context;
     }
 
 }

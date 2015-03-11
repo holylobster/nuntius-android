@@ -15,9 +15,11 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
+
+import org.holylobster.nuntius.Socket;
 
 import java.io.IOException;
 import java.io.InputStream;

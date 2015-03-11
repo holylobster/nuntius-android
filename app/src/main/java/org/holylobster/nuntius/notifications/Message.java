@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.notifications;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -27,7 +27,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
@@ -51,7 +50,7 @@ public class Message {
         this.event = event;
     }
 
-    String toJSON(Context context) {
+    public String toJSON(Context context) {
         StringWriter out = new StringWriter();
         JsonWriter writer = new JsonWriter(out);
 

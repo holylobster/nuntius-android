@@ -36,8 +36,24 @@
             android:screenOrientation="portrait" >
         </activity>
 
+        <activity android:name=".activity.ApplicationBlacklist"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.SettingsActivity" />
+        </activity>
+
+        <activity android:name=".activity.AddApplicationBlacklist"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.ApplicationBlacklist" />
+        </activity>
+
         <service
-            android:name=".NotificationListenerService"
+            android:name=".notifications.NotificationListenerService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
             <intent-filter>
