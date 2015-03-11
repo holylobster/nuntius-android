@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.bluetooth;
 
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
@@ -52,8 +52,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private final Context context;
 
+    private ArrayList<String> blackList;
+
     Server(Context context) {
         this.context = context;
+    }
+
+    public void setBlackList(ArrayList<String> bl){
+        this.blackList = bl;
     }
 
     public static boolean bluetoothEnabled() {
@@ -77,7 +83,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean filter(StatusBarNotification sbn) {
-        return sbn.getNotification() != null && sbn.getNotification().priority >= minNotificationPriority;
+        return sbn.getNotification() != null && sbn.getNotification().priority >= minNotificationPriority && !blackList.contains(sbn.getPackageName());
     }
 
     private void sendMessage(String event, StatusBarNotification sbn) {
@@ -97,6 +103,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
         boolean mustRun = defaultSharedPreferences.getBoolean("main_enable_switch", true);
 
         if (mustRun) {
