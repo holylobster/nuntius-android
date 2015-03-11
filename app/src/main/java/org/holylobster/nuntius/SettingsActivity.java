@@ -27,23 +27,27 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
+        setSupportActionBar(toolbar);
 
         // Display the fragment as the main content.
         getFragmentManager()
                 .beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
+                .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
     }
 
@@ -120,7 +124,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     }
 
-    @Override
     protected boolean isValidFragment(String fragmentName) {
         return SettingsFragment.class.getName().equals(fragmentName);
     }
