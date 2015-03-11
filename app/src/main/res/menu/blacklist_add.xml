@@ -16,9 +16,12 @@
   ~ along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <color name="grey_light">#EEEEEE</color>
-    <color name="grey_dark">#424242</color>
-    <color name="red">#F44336</color>
-    <color name="red_dark">#D32F2F</color>
-</resources>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/add"
+        android:orderInCategory="1"
+        android:title="Add"
+        android:icon="@drawable/ic_action_plus"
+        app:showAsAction="always"/>
+</menu>

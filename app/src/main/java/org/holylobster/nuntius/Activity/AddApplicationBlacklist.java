@@ -17,8 +17,8 @@
 
 package org.holylobster.nuntius.Activity;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -26,31 +26,34 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
-import com.nispok.snackbar.listeners.ActionClickListener;
 
 import org.holylobster.nuntius.Adapter.AppBlacklistAdapter;
+import org.holylobster.nuntius.Adapter.AppBlacklistAdapter.OnItemClickListener;
 import org.holylobster.nuntius.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 
-public class ApplicationBlacklist extends ActionBarActivity {
+public class AddApplicationBlacklist extends ActionBarActivity {
     private RecyclerView recyclerView;
     private AppBlacklistAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private Toolbar toolbar;
 
-    private ArrayList<String> blacklistedApp;
-
     private SharedPreferences settings;
-    SharedPreferences.Editor editor;
-    PackageManager pm;
+    private SharedPreferences.Editor editor;
+    private PackageManager pm;
+
+    private ArrayList<String> blacklistedApp; // Blacklisted App
+    private List<ApplicationInfo> packages;   // All Installed App
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,57 +64,44 @@ public class ApplicationBlacklist extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setTitle("Blacklisted App");
+        setTitle("Add an app to blacklist");
 
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        pm = getPackageManager();
         settings = getSharedPreferences("BlackListSP", MODE_PRIVATE);
         editor = settings.edit();
 
+        pm = getPackageManager();
+        packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Collections.sort(packages, new ApplicationInfo.DisplayNameComparator(pm));
+
+        adapter = new AppBlacklistAdapter(packages, pm);
+        recyclerView.setAdapter(adapter);
+
         blacklistedApp = new ArrayList<>(settings.getStringSet("BlackList", new HashSet<String>()));
 
-        adapter = new AppBlacklistAdapter(blacklistedApp, pm);
-        recyclerView.setAdapter(adapter);
-        adapter.SetOnItemClickListener(new AppBlacklistAdapter.OnItemClickListener() {
+        adapter.SetOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                itemSelected(position);
+                addToBlacklist(position);
             }
         });
     }
 
-    public void itemSelected(int i){
-        String oldApp = blacklistedApp.get(i);
-        blacklistedApp.remove(i);
+    public void addToBlacklist(int position){
+        blacklistedApp.add(packages.get(position).packageName);
         editor.putStringSet("BlackList", new HashSet<>(blacklistedApp));
         editor.commit();
-        adapter.refresh(blacklistedApp);
-        showInfo(oldApp);
+        showInfo(position);
     }
 
-    public void showInfo(final String app){
-        try {
-            SnackbarManager.show(
-                    Snackbar.with(getApplicationContext())
-                            .actionColor(getResources().getColor(R.color.red))
-                            .actionLabel("Undo") // action button label
-                            .actionListener(new ActionClickListener() {
-                                @Override
-                                public void onActionClicked(Snackbar snackbar) {
-                                    blacklistedApp.add(app);
-                                    editor.putStringSet("BlackList", new HashSet<>(blacklistedApp));
-                                    editor.commit();
-                                    adapter.refresh(blacklistedApp);
-                                }
-                            }) // action button's ActionClickListener
-                            .text(pm.getApplicationLabel(pm.getApplicationInfo(app, 0)) + " removed from blacklist"), this);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
+    public void showInfo(int position){
+        SnackbarManager.show(
+            Snackbar.with(getApplicationContext())
+                    .text(pm.getApplicationLabel(packages.get(position)) + " added to blacklist"), this);
     }
 
     @Override
@@ -121,20 +111,6 @@ public class ApplicationBlacklist extends ActionBarActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.blacklist_add, menu);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.add:
-                Intent intent = new Intent(this, AddApplicationBlacklist.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 }
