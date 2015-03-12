@@ -15,5 +15,11 @@
     <string name="runing_with_x_connections_end">connections.</string>
     <string name="notification_not_enabled">Nuntius requires access to the notification to be enabled</string>
     <string name="not_paired">Please pair your device to a computer</string>
+    <string name="app_blacklist_title">Application Blacklist</string>
+    <string name="app_blacklist_summary">Blacklist App\'s notification from Nuntius</string>
+    <string name="blacklisted_title">Blacklisted App</string>
+    <string name="blacklist_title">Add an app to blacklist</string>
+    <string name="added_to_blacklist">added to blacklist</string>
+    <string name="removed_from_blacklist">removed from blacklist</string>
 
 </resources>

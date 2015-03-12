@@ -16,8 +16,8 @@
 
     <Preference
         android:key="app_blacklist"
-        android:title="Application Blacklist"
-        android:summary="Blacklist App's notification from Nuntius">
+        android:title="@string/app_blacklist_title"
+        android:summary="@string/app_blacklist_summary">
 
         <intent
             android:action="android.intent.action.VIEW"

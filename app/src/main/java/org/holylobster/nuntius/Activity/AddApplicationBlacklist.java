@@ -64,7 +64,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setTitle("Add an app to blacklist");
+        setTitle(getResources().getString(R.string.blacklist_title));
 
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -101,7 +101,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
     public void showInfo(int position){
         SnackbarManager.show(
             Snackbar.with(getApplicationContext())
-                    .text(pm.getApplicationLabel(packages.get(position)) + " added to blacklist"), this);
+                    .text(pm.getApplicationLabel(packages.get(position)) + " " + getResources().getString(R.string.added_to_blacklist)), this);
     }
 
     @Override

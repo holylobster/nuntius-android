@@ -61,7 +61,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        setTitle("Blacklisted App");
+        setTitle(getResources().getString(R.string.blacklisted_title));
 
         recyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -108,7 +108,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
                                     adapter.refresh(blacklistedApp);
                                 }
                             }) // action button's ActionClickListener
-                            .text(pm.getApplicationLabel(pm.getApplicationInfo(app, 0)) + " removed from blacklist"), this);
+                            .text(pm.getApplicationLabel(pm.getApplicationInfo(app, 0)) + " " + getResources().getString(R.string.removed_from_blacklist)), this);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
