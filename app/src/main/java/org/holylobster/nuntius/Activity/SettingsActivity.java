@@ -15,12 +15,11 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.Activity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +30,11 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.widget.Toast;
+
+import org.holylobster.nuntius.BluetoothServer.IntentRequestCodes;
+import org.holylobster.nuntius.BluetoothServer.Server;
+import org.holylobster.nuntius.BluetoothServer.NotificationListenerService;
+import org.holylobster.nuntius.R;
 
 public class SettingsActivity extends PreferenceActivity {
 
@@ -78,7 +82,27 @@ public class SettingsActivity extends PreferenceActivity {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
                     // TODO Display the number of active connections
                     if (NotificationListenerService.server != null) {
-                        preference.setSummary(NotificationListenerService.server.getStatusMessage());
+                        String message = NotificationListenerService.server.getStatusMessage();
+                        String summary;
+                        switch (message){
+                            case "connection":
+                                summary = getString(R.string.runing_with_x_connections_start) + " " + NotificationListenerService.server.getNumberOfConnections() + " " + getString(R.string.runing_with_x_connections_end);
+                                break;
+                            case "notification":
+                                summary = getString(R.string.notification_not_enabled);
+                                break;
+                            case "bluetooth":
+                                summary = getString(R.string.bluetooth_not_enabled);
+                                break;
+                            case "pair":
+                                summary = getString(R.string.not_paired);
+                                break;
+                            default:
+                                summary = "...";
+                                break;
+
+                        }
+                        preference.setSummary(summary);
                     }
                 }
             }
@@ -108,6 +132,7 @@ public class SettingsActivity extends PreferenceActivity {
                     if (!NotificationListenerService.isNotificationAccessEnabled()) {
                         new AskNotificationAccessDialogFragment().show(getFragmentManager(), "NoticeDialogFragment");
                     }
+                    updatePreference(preference);
                 }
             }
         }

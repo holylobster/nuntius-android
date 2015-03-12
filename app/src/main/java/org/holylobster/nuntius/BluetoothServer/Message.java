@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.BluetoothServer;
 
 import android.annotation.TargetApi;
 import android.app.Notification;

@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.Activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -23,6 +23,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+
+import org.holylobster.nuntius.R;
 
 
 public class WelcomeActivity extends Activity {

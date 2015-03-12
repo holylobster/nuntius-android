@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.BluetoothServer;
 
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
@@ -30,6 +30,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import org.holylobster.nuntius.BluetoothServer.NotificationListenerService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,12 +117,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     public String getStatusMessage() {
-        if (acceptThread != null && acceptThread.isAlive()) {
-            return "Running with " + connections.size() + " connections.";
-        } else if (!bluetoothEnabled()) {
-            return "Enable Bluetooth to activate Nuntius";
+        if (bluetoothEnabled() && getNumberOfConnections() == 0 ){
+            return "pair";
+        }else if (acceptThread != null && acceptThread.isAlive()) {
+            return  "connection";
         } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
-            return "Enable Notifications";
+            return "notification";
+        } else if (!bluetoothEnabled()) {
+            return "bluetooth";
         } else {
             return "...";
         }
