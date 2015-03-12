@@ -19,9 +19,11 @@ package org.holylobster.nuntius.notifications;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -30,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.support.v4.app.NotificationCompat;
 import android.util.Base64;
 import android.util.JsonWriter;
 import android.util.Log;
@@ -37,6 +40,7 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
 public class Message {
     // Used for logging
@@ -187,15 +191,68 @@ public class Message {
             return;
         }
 
+        writer.name("actions");
+        writer.beginArray();
+
         if (notification.actions != null) {
-            writer.name("actions");
-            writer.beginArray();
             for (Notification.Action a : notification.actions) {
                 writer.beginObject();
                 writer.name("title").value(a.title.toString());
                 writer.endObject();
             }
-            writer.endArray();
+        }
+
+        writeWearableActions(writer, notification);
+
+        writer.endArray();
+    }
+
+    private void writeWearableActions(JsonWriter writer, Notification notification) throws IOException {
+        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender(notification);
+        List<NotificationCompat.Action> wearableExtenderActions = wearableExtender.getActions();
+
+        for (final NotificationCompat.Action action : wearableExtenderActions) {
+            Log.i(TAG, "Wearable Action Title: " + action.title);
+            Log.i(TAG, "-- Extras: " + action.getExtras());
+            Log.i(TAG, "-- Intent: " + action.actionIntent);
+
+            writer.beginObject();
+            writer.name("title").value(action.title.toString());
+
+            android.support.v4.app.RemoteInput[] remoteInputs = action.getRemoteInputs();
+            if (remoteInputs != null) {
+                writer.name("remoteInputs");
+                writer.beginArray();
+
+                for (android.support.v4.app.RemoteInput remoteInput : remoteInputs) {
+                    writer.beginObject();
+                    writer.name("label").value(remoteInput.getLabel().toString());
+                    writer.name("allowFreeFormInput").value(remoteInput.getAllowFreeFormInput());
+
+                    Log.i(TAG, "-- Remote Input: " + remoteInput.toString());
+                    Log.i(TAG, "----- Label: " + remoteInput.getLabel());
+                    CharSequence[] choices = remoteInput.getChoices();
+                    if (choices != null) {
+                        writer.name("choices");
+                        writer.beginArray();
+
+                        for (CharSequence choice : choices) {
+                            Log.i(TAG, "----- Choice: " + choice.toString());
+                            writer.value(choice.toString());
+                        }
+
+                        writer.endArray();
+                    }
+                    Log.i(TAG, "----- Extras: " + remoteInput.getExtras());
+                    Log.i(TAG, "----- Freeform: " + remoteInput.getAllowFreeFormInput());
+
+                    writer.endObject();
+                }
+
+                writer.endArray();
+            }
+
+            writer.endObject();
         }
     }
 
