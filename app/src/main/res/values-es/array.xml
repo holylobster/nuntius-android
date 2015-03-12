@@ -7,12 +7,4 @@
         <item>Alta</item>
         <item>Máx</item>
     </string-array>
-    <string-array translatable="false" name="pref_min_notification_priority_values">
-        <item>-2</item>
-        <item>-1</item>
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    <string name="pref_min_notification_priority_default" translatable="false">0</string>
 </resources>
