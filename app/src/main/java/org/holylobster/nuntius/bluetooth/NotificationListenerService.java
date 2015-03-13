@@ -15,14 +15,12 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.BluetoothServer;
+package org.holylobster.nuntius.bluetooth;
 
 import android.content.Intent;
 import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-
-import org.holylobster.nuntius.BluetoothServer.Server;
 
 public class NotificationListenerService extends android.service.notification.NotificationListenerService {
 

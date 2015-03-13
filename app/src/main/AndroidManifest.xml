@@ -13,7 +13,7 @@
         >
 
         <activity
-            android:name=".Activity.SplashScreenActivity"
+            android:name=".activity.SplashScreenActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/SplashScreen"
@@ -25,35 +25,35 @@
         </activity>
 
         <activity
-            android:name=".Activity.WelcomeActivity"
+            android:name=".activity.WelcomeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
 
         <activity
-            android:name=".Activity.SettingsActivity"
+            android:name=".activity.SettingsActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
 
-        <activity android:name=".Activity.ApplicationBlacklist"
+        <activity android:name=".activity.ApplicationBlacklist"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activity.SettingsActivity" />
+                android:value=".activity.SettingsActivity" />
         </activity>
 
-        <activity android:name=".Activity.AddApplicationBlacklist"
+        <activity android:name=".activity.AddApplicationBlacklist"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Activity.ApplicationBlacklist" />
+                android:value=".activity.ApplicationBlacklist" />
         </activity>
 
         <service
-            android:name=".BluetoothServer.NotificationListenerService"
+            android:name=".bluetooth.NotificationListenerService"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
             <intent-filter>

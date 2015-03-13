@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.Activity;
+package org.holylobster.nuntius.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +33,7 @@ import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
 
-import org.holylobster.nuntius.Adapter.AppBlacklistAdapter;
+import org.holylobster.nuntius.adapter.AppBlacklistAdapter;
 import org.holylobster.nuntius.R;
 
 import java.util.ArrayList;
@@ -138,3 +138,4 @@ public class ApplicationBlacklist extends ActionBarActivity {
         }
     }
 }
+

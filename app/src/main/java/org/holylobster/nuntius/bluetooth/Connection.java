@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.BluetoothServer;
+package org.holylobster.nuntius.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;

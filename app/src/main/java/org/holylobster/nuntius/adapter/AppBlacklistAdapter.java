@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.Adapter;
+package org.holylobster.nuntius.adapter;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;

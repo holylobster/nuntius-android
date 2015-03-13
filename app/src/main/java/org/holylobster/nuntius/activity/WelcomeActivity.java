@@ -15,42 +15,35 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.Activity;
+package org.holylobster.nuntius.activity;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.view.View;
 
 import org.holylobster.nuntius.R;
 
 
-public class SplashScreenActivity extends Activity {
+public class WelcomeActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+        setContentView(R.layout.activity_welcome);
+    }
 
+    public void onGotIt(View button) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        final boolean gotIt = settings.getBoolean("gotIt", false);
+        SharedPreferences.Editor prefEditor = settings.edit();
+        prefEditor.putBoolean("gotIt", true);
+        prefEditor.apply();
 
-        ((GradientDrawable) findViewById(R.id.splash).getBackground().getCurrent())
-                .setGradientRadius(getResources().getDimension(
-                        R.dimen.gradient_radius));
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Class activityClass = gotIt ? SettingsActivity.class : WelcomeActivity.class;
-                Intent i = new Intent(SplashScreenActivity.this, activityClass);
-                startActivity(i);
-                finish();
-            }
-        }, 2000);
+        Intent i = new Intent(this, SettingsActivity.class);
+        startActivity(i);
+        finish();
     }
 
 }
