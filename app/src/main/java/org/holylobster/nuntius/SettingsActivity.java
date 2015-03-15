@@ -85,7 +85,8 @@ public class SettingsActivity extends ActionBarActivity {
                         String summary;
                         switch (message){
                             case "connection":
-                                summary = getString(R.string.running_with_x_connections, NotificationListenerService.server.getNumberOfConnections());
+                                int connections = NotificationListenerService.server.getNumberOfConnections();
+                                summary = getResources().getQuantityString(R.plurals.running_with_x_connections, connections, connections);
                                 break;
                             case "notification":
                                 summary = getString(R.string.notification_not_enabled);

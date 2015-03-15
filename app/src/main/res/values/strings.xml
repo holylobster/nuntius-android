@@ -11,7 +11,10 @@
     <string name="pref_license_title">License</string>
     <string name="pref_min_notification_priority">Minimum notification priority</string>
     <string name="pref_min_notification_priority_summary">Set the minimum notification priority from which the app will share notification</string>
-    <string name="running_with_x_connections">Running with %1$d connections.</string>
+    <plurals name="running_with_x_connections">
+        <item quantity="one">Running with %1$d connection.</item>
+        <item quantity="other">Running with %1$d connections.</item>
+    </plurals>
     <string name="notification_not_enabled">Nuntius requires access to the notification to be enabled</string>
     <string name="not_paired">Please pair your device to a computer</string>
 
