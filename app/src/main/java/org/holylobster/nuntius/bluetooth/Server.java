@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.bluetooth;
 
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
@@ -33,6 +33,7 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -56,6 +57,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         this.context = context;
     }
 
+    private ArrayList<String> blacklist;
+
     public static boolean bluetoothEnabled() {
         return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
     }
@@ -77,7 +80,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean filter(StatusBarNotification sbn) {
-        return sbn.getNotification() != null && sbn.getNotification().priority >= minNotificationPriority;
+        return sbn.getNotification() != null && sbn.getNotification().priority >= minNotificationPriority && !blacklist.contains(sbn.getPackageName());
     }
 
     private void sendMessage(String event, StatusBarNotification sbn) {
@@ -97,6 +100,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
         boolean mustRun = defaultSharedPreferences.getBoolean("main_enable_switch", true);
 
         if (mustRun) {
@@ -115,12 +119,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     public String getStatusMessage() {
-        if (acceptThread != null && acceptThread.isAlive()) {
-            return "Running with " + connections.size() + " connections.";
-        } else if (!bluetoothEnabled()) {
-            return "Enable Bluetooth to activate Nuntius";
+        if (bluetoothEnabled() && getNumberOfConnections() == 0 ){
+            return "pair";
+        }else if (acceptThread != null && acceptThread.isAlive()) {
+            return  "connection";
         } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
-            return "Enable Notifications";
+            return "notification";
+        } else if (!bluetoothEnabled()) {
+            return "bluetooth";
         } else {
             return "...";
         }
@@ -151,6 +157,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        blacklist = new ArrayList<>(sharedPreferences.getStringSet("BlackList", new HashSet<String>()));
         switch (key) {
             case "main_enable_switch":
                 if (sharedPreferences.getBoolean("main_enable_switch", true)) {
