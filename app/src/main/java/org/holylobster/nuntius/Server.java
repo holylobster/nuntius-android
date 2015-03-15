@@ -115,12 +115,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     public String getStatusMessage() {
-        if (acceptThread != null && acceptThread.isAlive()) {
-            return "Running with " + connections.size() + " connections.";
-        } else if (!bluetoothEnabled()) {
-            return "Enable Bluetooth to activate Nuntius";
+        if (bluetoothEnabled() && getNumberOfConnections() == 0 ) {
+            return "pair";
+        } else if (acceptThread != null && acceptThread.isAlive()) {
+            return  "connection";
         } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
-            return "Enable Notifications";
+            return "notification";
+        } else if (!bluetoothEnabled()) {
+            return "bluetooth";
         } else {
             return "...";
         }

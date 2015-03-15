@@ -7,8 +7,9 @@
 
     <ListPreference
         android:key="pref_min_notification_priority"
-        android:title="Minimum notification priority"
-        android:dialogTitle="Minimum notification priority"
+        android:title="@string/pref_min_notification_priority"
+        android:dialogTitle="@string/pref_min_notification_priority"
+        android:summary="@string/pref_min_notification_priority_summary"
         android:entries="@array/pref_min_notification_priority_entries"
         android:entryValues="@array/pref_min_notification_priority_values"
         android:defaultValue="@string/pref_min_notification_priority_default" />

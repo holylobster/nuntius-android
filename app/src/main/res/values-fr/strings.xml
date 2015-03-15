@@ -3,11 +3,16 @@
 
     <string name="dialog_ask_notification_access">Nuntius nécessite l\'accès aux notifications. Lorsque les paramètres de notifications s\'ouvriront, veuillez cocher Nuntius et confirmer. Puis appuyez sur le bouton retour.</string>
     <string name="button_got_it">Compris</string>
-    <string name="label_welcome_text">Nuntius permet de transfèrer vos notifications vers d\'autres appareils. Activer le partage de notification puis appairer votre téléphone avec votre appareil via Bluetooth.</string>
+    <string name="label_welcome_text">Nuntius permet de transfèrer vos notifications vers d\'autres appareils. Activer le partage de notification puis appairer votre appareil avec votre ordinateur via Bluetooth.</string>
     <string name="enable_nuntius">Activer Nuntius</string>
     <string name="bluetooth_not_available">Le bluetooth n\'est pas disponibles sur cet appareil</string>
-    <string name="bluetooth_not_enabled">Nuntius necessite le bluetooth pour être activer</string>
+    <string name="bluetooth_not_enabled">Nuntius necessite le bluetooth pour être activé</string>
     <string name="enable_notification_toast_hint">Cocher Nuntius puis confirmer. Appuyer sur retour pour revenir vers l\'Application.</string>
     <string name="pref_license_title">License</string>
+    <string name="pref_min_notification_priority">Priorité minimum des notifications</string>
+    <string name="pref_min_notification_priority_summary">Definir le seuil de priorité minimum a partir duquel l\'app partagera les notifications</string>
+    <string name="running_with_x_connections">En cours avec %1$d connections.</string>
+    <string name="notification_not_enabled">Nuntius necessite l\'accès au notifications pour être activé</string>
+    <string name="not_paired">Veuillez appairer votre appareil téléphone à un ordinateur</string>
 
 </resources>
