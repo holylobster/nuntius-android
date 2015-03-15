@@ -20,30 +20,33 @@ package org.holylobster.nuntius;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+
+        android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
+        setSupportActionBar(toolbar);
 
         // Display the fragment as the main content.
         getFragmentManager()
                 .beginTransaction()
-                .replace(android.R.id.content, new SettingsFragment())
+                .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
     }
 
@@ -78,7 +81,27 @@ public class SettingsActivity extends PreferenceActivity {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
                     // TODO Display the number of active connections
                     if (NotificationListenerService.server != null) {
-                        preference.setSummary(NotificationListenerService.server.getStatusMessage());
+                        String message = NotificationListenerService.server.getStatusMessage();
+                        String summary;
+                        switch (message){
+                            case "connection":
+                                summary = getString(R.string.runing_with_x_connections_start) + " " + NotificationListenerService.server.getNumberOfConnections() + " " + getString(R.string.runing_with_x_connections_end);
+                                break;
+                            case "notification":
+                                summary = getString(R.string.notification_not_enabled);
+                                break;
+                            case "bluetooth":
+                                summary = getString(R.string.bluetooth_not_enabled);
+                                break;
+                            case "pair":
+                                summary = getString(R.string.not_paired);
+                                break;
+                            default:
+                                summary = "...";
+                                break;
+
+                        }
+                        preference.setSummary(summary);
                     }
                 }
             }
@@ -108,6 +131,7 @@ public class SettingsActivity extends PreferenceActivity {
                     if (!NotificationListenerService.isNotificationAccessEnabled()) {
                         new AskNotificationAccessDialogFragment().show(getFragmentManager(), "NoticeDialogFragment");
                     }
+                    updatePreference(preference);
                 }
             }
         }
@@ -120,7 +144,6 @@ public class SettingsActivity extends PreferenceActivity {
 
     }
 
-    @Override
     protected boolean isValidFragment(String fragmentName) {
         return SettingsFragment.class.getName().equals(fragmentName);
     }
