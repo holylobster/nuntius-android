@@ -8,8 +8,12 @@
     <string name="enable_nuntius">Attiva Nuntius</string>
     <string name="label_welcome_text">Nuntius ti permette di ricevere su altri dispositivi le notifiche. Abilita la condivisione delle notifiche per Nuntius dopo aver premuto "Ok" e accoppia con il dispositivo che ti interessa. </string>
     <string name="pref_license_title">Licenza</string>
+    <string name="not_paired">Accoppia il tuo dispositivo con un computer</string>
+    <string name="notification_not_enabled">Nuntius richiede che l\'accesso alle notifiche sia abilitato</string>
     <plurals name="running_with_x_connections">
         <item quantity="one">Attivo con %1$d connessione.</item>
         <item quantity="other">Attivo con %1$d connessioni.</item>
     </plurals>
+    <string name="pref_min_notification_priority">Priorità minima notifiche</string>
+    <string name="pref_min_notification_priority_summary">Invia solo notifiche con priorità uguale o superiore</string>
 </resources>
