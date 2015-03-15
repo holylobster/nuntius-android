@@ -9,5 +9,10 @@
     <string name="bluetooth_not_enabled">Nuntius wymaga włączenia Bluetooth</string>
     <string name="enable_notification_toast_hint">Teraz proszę zaznaczyć pole "Nuntius" i zatwierdzić, a następnie nacisnąć przycisk Wstecz.</string>
     <string name="pref_license_title">Licencja</string>
+    <string name="pref_min_notification_priority">Minimalny priorytet powiadomienia</string>
+    <string name="pref_min_notification_priority_summary">Ustawia minimalny priorytet powiadomienia, od którego będzie ono udostępniane</string>
+    <string name="running_with_x_connections">Połączenia: %1$d.</string>
+    <string name="notification_not_enabled">Nuntius wymaga włączenia dostępu do powiadomień</string>
+    <string name="not_paired">Proszę połączyć urządzenie z komputerem</string>
 
 </resources>
