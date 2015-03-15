@@ -77,7 +77,27 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean filter(StatusBarNotification sbn) {
-        return sbn.getNotification() != null && sbn.getNotification().priority >= minNotificationPriority;
+        Notification notification = sbn.getNotification();
+        return
+                notification != null
+                // Filter low priority notifications
+                && notification.priority >= minNotificationPriority
+                // Notification flags
+                && !isOngoing(notification)
+                && !isLocalOnly(notification);
+    }
+
+    private static boolean isLocalOnly(Notification notification) {
+        boolean local = (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
+        Log.d(TAG, String.format("Notification is local: %1s", local));
+        return local;
+
+    }
+
+    private static boolean isOngoing(Notification notification) {
+        boolean ongoing = (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0;
+        Log.d(TAG, String.format("Notification is ongoing: %1s", ongoing));
+        return ongoing;
     }
 
     private void sendMessage(String event, StatusBarNotification sbn) {
