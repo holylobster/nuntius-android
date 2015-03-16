@@ -17,6 +17,7 @@
 
 package org.holylobster.nuntius;
 
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -27,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -87,7 +89,11 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 && !isLocalOnly(notification);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
     private static boolean isLocalOnly(Notification notification) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT_WATCH) {
+            return false;
+        }
         boolean local = (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
         Log.d(TAG, String.format("Notification is local: %1s", local));
         return local;
