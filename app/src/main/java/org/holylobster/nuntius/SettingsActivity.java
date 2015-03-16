@@ -79,10 +79,9 @@ public class SettingsActivity extends ActionBarActivity {
         private void updatePreference(Preference preference) {
             if (preference.getKey().equals("main_enable_switch")) {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
-                    // TODO Display the number of active connections
+                    String summary;
                     if (NotificationListenerService.server != null) {
                         String message = NotificationListenerService.server.getStatusMessage();
-                        String summary;
                         switch (message){
                             case "connection":
                                 int connections = NotificationListenerService.server.getNumberOfConnections();
@@ -100,10 +99,11 @@ public class SettingsActivity extends ActionBarActivity {
                             default:
                                 summary = "...";
                                 break;
-
                         }
-                        preference.setSummary(summary);
+                    } else {
+                        summary = getString(R.string.notification_not_enabled);
                     }
+                    preference.setSummary(summary);
                 }
             }
         }
