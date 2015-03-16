@@ -31,10 +31,12 @@ import android.preference.PreferenceGroup;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
+
 import org.holylobster.nuntius.IntentRequestCodes;
 import org.holylobster.nuntius.NotificationListenerService;
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
+
 
 public class SettingsActivity extends ActionBarActivity {
 
@@ -110,6 +112,8 @@ public class SettingsActivity extends ActionBarActivity {
                         preference.setSummary(summary);
                     }
                 }
+            } else if (preference.getKey().equals("version")) {
+                preference.setSummary(String.format("v%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
             }
         }
 

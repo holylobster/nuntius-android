@@ -17,5 +17,6 @@
     </plurals>
     <string name="notification_not_enabled">Nuntius requires access to the notification to be enabled</string>
     <string name="not_paired">Please pair your device to a computer</string>
+    <string name="version">Nuntius Version</string>
 
 </resources>
