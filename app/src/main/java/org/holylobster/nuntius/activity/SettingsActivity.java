@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.activity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -30,6 +30,11 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
+
+import org.holylobster.nuntius.IntentRequestCodes;
+import org.holylobster.nuntius.NotificationListenerService;
+import org.holylobster.nuntius.R;
+import org.holylobster.nuntius.Server;
 
 public class SettingsActivity extends ActionBarActivity {
 
