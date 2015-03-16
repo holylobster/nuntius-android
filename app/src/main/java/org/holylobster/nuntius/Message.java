@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -82,15 +83,18 @@ public class Message {
             writer.name("tag").value(tag);
         }
 
+        final PackageManager pm = context.getPackageManager();
         try {
-            BitmapDrawable icon = (BitmapDrawable) context.getPackageManager().getApplicationIcon(sbn.getPackageName());
+            ApplicationInfo ai = pm.getApplicationInfo(sbn.getPackageName(), 0);
+            writer.name("appName").value(pm.getApplicationLabel(ai).toString());
+
+            BitmapDrawable icon = (BitmapDrawable) pm.getApplicationIcon(ai);
             Bitmap bitmap = icon.getBitmap();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             writer.name("icon").value(new String(Base64.encode(stream.toByteArray(), Base64.DEFAULT), "UTF-8"));
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d(TAG, "Could not get the icon from the notification: " + sbn.getPackageName());
+        } catch (final PackageManager.NameNotFoundException e) {
+            Log.d(TAG, "Could not get the icon and label for package: " + sbn.getPackageName());
         }
 
         writePropertiesLollipop(writer, sbn);
