@@ -8,4 +8,8 @@
     <string name="enable_nuntius">Activar Nuntius</string>
     <string name="label_welcome_text">Nuntius te permite enviar las notificaciones a otros dispositivos. Comparte las notificaciones para Nuntius después de pulsar "Vale" y empareja el Bluetooth con el dispositivo específico.</string>
     <string name="pref_license_title">Licencia</string>
+    <string name="not_paired">Empareja el dispositivo al ordenador</string>
+    <string name="notification_not_enabled">Nuntius requiere que el acceso a la notificación esté activado</string>
+    <string name="pref_min_notification_priority">Prioridad mínima de notifiación</string>
+    <string name="pref_min_notification_priority_summary">Establecer la prioridad mínima de notificación por la cual la aplicación enviará notificaciones</string>
 </resources>
