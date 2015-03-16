@@ -9,4 +9,7 @@
     <string name="enable_notification_toast_hint">Teraz vyberte zaškrtávacie pole Nuntius a potvrďte ho. Potom stlačte tlačidlo späť.</string>
     <string name="pref_license_title">Licencie</string>
     <string name="pref_min_notification_priority">Minimálna priorita upozornení</string>
+    <string name="not_paired">Prosím spárovať zariadenie k počítaču</string>
+    <string name="notification_not_enabled">Nuntius vyžaduje prístup k oznámenia musí byť povolený</string>
+    <string name="pref_min_notification_priority_summary">Oznámenie nad tejto priority budú dodané</string>
 </resources>
