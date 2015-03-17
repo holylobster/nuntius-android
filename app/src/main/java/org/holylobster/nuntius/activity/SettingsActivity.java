@@ -32,6 +32,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.widget.Toast;
 
 
+import org.holylobster.nuntius.BuildConfig;
 import org.holylobster.nuntius.IntentRequestCodes;
 import org.holylobster.nuntius.NotificationListenerService;
 import org.holylobster.nuntius.R;
