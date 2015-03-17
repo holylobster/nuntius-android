@@ -32,4 +32,10 @@
 
     </Preference>
 
+    <Preference
+        android:key="version"
+        android:title="@string/version"
+        android:summary="">
+    </Preference>
+
 </PreferenceScreen>
