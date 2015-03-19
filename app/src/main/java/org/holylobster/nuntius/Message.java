@@ -24,7 +24,10 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
@@ -88,8 +91,7 @@ public class Message {
             ApplicationInfo ai = pm.getApplicationInfo(sbn.getPackageName(), 0);
             writer.name("appName").value(pm.getApplicationLabel(ai).toString());
 
-            BitmapDrawable icon = (BitmapDrawable) pm.getApplicationIcon(ai);
-            Bitmap bitmap = icon.getBitmap();
+            Bitmap bitmap = toBitmap(pm.getApplicationIcon(ai));
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             writer.name("icon").value(new String(Base64.encode(stream.toByteArray(), Base64.DEFAULT), "UTF-8"));
@@ -198,4 +200,20 @@ public class Message {
         }
     }
 
+    public static Bitmap toBitmap(Drawable drawable) throws IOException {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable) drawable).getBitmap();
+        }
+        else {
+            final Bitmap bitmap = Bitmap.createBitmap(
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888
+            );
+            final Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
+    }
 }
