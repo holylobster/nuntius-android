@@ -203,8 +203,7 @@ public class Message {
     public static Bitmap toBitmap(Drawable drawable) throws IOException {
         if (drawable instanceof BitmapDrawable) {
             return ((BitmapDrawable) drawable).getBitmap();
-        }
-        else {
+        } else {
             final Bitmap bitmap = Bitmap.createBitmap(
                     drawable.getIntrinsicWidth(),
                     drawable.getIntrinsicHeight(),
