@@ -20,15 +20,20 @@ package org.holylobster.nuntius.activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 
@@ -59,6 +64,7 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+        private BroadcastReceiver br;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,18 @@ public class SettingsActivity extends ActionBarActivity {
         public void onResume() {
             super.onResume();
             getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(IntentRequestCodes.INTENT_SERVER_STATUS_CHANGE);
+            br = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String status = intent.getStringExtra("status");
+                    Log.d(TAG, "Received server status change: " + status);
+                    updatePreference(findPreference("main_enable_switch"));
+                }
+            };
+            getActivity().registerReceiver(br, filter);
 
             for (int i = 0; i < getPreferenceScreen().getPreferenceCount(); ++i) {
                 Preference preference = getPreferenceScreen().getPreference(i);
@@ -87,41 +105,46 @@ public class SettingsActivity extends ActionBarActivity {
         private void updatePreference(Preference preference) {
             if (preference.getKey().equals("main_enable_switch")) {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
-                    String summary;
-                    if (NotificationListenerService.server != null) {
-                        String message = NotificationListenerService.server.getStatusMessage();
-                        switch (message){
-                            case "connection":
-                                int connections = NotificationListenerService.server.getNumberOfConnections();
-                                summary = getResources().getQuantityString(R.plurals.running_with_x_connections, connections, connections);
-                                break;
-                            case "notification":
-                                summary = getString(R.string.notification_not_enabled);
-                                break;
-                            case "bluetooth":
-                                summary = getString(R.string.bluetooth_not_enabled);
-                                break;
-                            case "pair":
-                                summary = getString(R.string.not_paired);
-                                break;
-                            default:
-                                summary = "...";
-                                break;
-                        }
-                    } else {
-                        summary = getString(R.string.notification_not_enabled);
-                    }
-                    preference.setSummary(summary);
+                    updateSummary(preference);
                 }
             } else if (preference.getKey().equals("version")) {
                 preference.setSummary(String.format("v%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
             }
         }
 
+        private void updateSummary(Preference preference) {
+            String summary;
+            if (NotificationListenerService.server != null) {
+                String message = NotificationListenerService.server.getStatusMessage();
+                switch (message){
+                    case "connection":
+                        int connections = NotificationListenerService.server.getNumberOfConnections();
+                        summary = getResources().getQuantityString(R.plurals.running_with_x_connections, connections, connections);
+                        break;
+                    case "notification":
+                        summary = getString(R.string.notification_not_enabled);
+                        break;
+                    case "bluetooth":
+                        summary = getString(R.string.bluetooth_not_enabled);
+                        break;
+                    case "pair":
+                        summary = getString(R.string.not_paired);
+                        break;
+                    default:
+                        summary = "...";
+                        break;
+                }
+            } else {
+                summary = getString(R.string.notification_not_enabled);
+            }
+            preference.setSummary(summary);
+        }
+
         @Override
         public void onPause() {
             super.onPause();
             getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+            getActivity().unregisterReceiver(br);
         }
 
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

@@ -33,8 +33,11 @@ import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import org.holylobster.nuntius.activity.SettingsActivity;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -200,6 +203,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
             return;
         }
 
+        notifyListener(getStatusMessage());
+
         acceptThread = new Thread() {
             public void run() {
                 Log.d(TAG, "Listen server started");
@@ -215,7 +220,19 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                             BluetoothSocket socket = serverSocket.accept();
                             BluetoothDevice remoteDevice = socket.getRemoteDevice();
                             Log.d(TAG, ">>Accept Client Request from: " + remoteDevice.getName() + "(" + remoteDevice.getAddress() + ")");
-                            connections.add(new Connection(context, socket));
+                            connections.add(new Connection(context, socket, new Handler() {
+                                @Override
+                                public void onMessageReceived() {
+                                    Log.d(TAG, "Message received");
+                                }
+
+                                @Override
+                                public void onConnectionClosed(Connection connection) {
+                                    connections.remove(connection);
+                                    notifyListener(getStatusMessage());
+                                }
+                            }));
+                            notifyListener(getStatusMessage());
                         } catch (IOException e) {
                             Log.e(TAG, "Error during accept", e);
                             Log.i(TAG, "Waiting 5 seconds before accepting again...");
@@ -257,7 +274,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 serverSocket = null;
             }
         }
+        notifyListener(getStatusMessage());
+    }
 
+    private void notifyListener(String status) {
+        Intent intent = new Intent(IntentRequestCodes.INTENT_SERVER_STATUS_CHANGE);
+        intent.putExtra("status", status);
+        Log.d(TAG, "Sending server status change: " + status);
+        context.sendBroadcast(intent);
     }
 
 }

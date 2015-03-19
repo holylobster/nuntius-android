@@ -17,11 +17,7 @@
 
 package org.holylobster.nuntius;
 
-public final class IntentRequestCodes {
-
-    public static final int BT_REQUEST_ENABLE = 1001;
-    public static final String INTENT_SERVER_STATUS_CHANGE = "org.holylobster.nuntius.INTENT_SERVER_STATUS_CHANGE";
-
-    private IntentRequestCodes() {
-    }
+public interface Handler {
+    void onMessageReceived();
+    void onConnectionClosed(Connection connection);
 }

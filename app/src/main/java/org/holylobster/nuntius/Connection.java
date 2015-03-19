@@ -34,71 +34,60 @@ public class Connection extends Thread {
     private final String TAG = this.getClass().getSimpleName();
 
     private final BlockingQueue<Message> queue = new LinkedBlockingDeque<>();
-    private final Context context;
-
-    private BluetoothSocket socket;
-    private BufferedOutputStream outputStream;
-    private BufferedInputStream inputStream;
 
     private final Thread senderThread;
 
-    Connection(Context context, BluetoothSocket socket) {
-        this.socket = socket;
-        this.context = context;
+    private final Handler handler;
 
-        try {
-            InputStream realInputStream = socket.getInputStream();
-            inputStream = new BufferedInputStream(realInputStream);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not create input stream.", e);
-        }
-
-        try {
-            OutputStream realOutputStream = socket.getOutputStream();
-            outputStream = new BufferedOutputStream(realOutputStream);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not create output stream.", e);
-        }
-
+    Connection(final Context context, final BluetoothSocket socket, Handler handler) {
+        this.handler = handler;
         senderThread = new Thread() {
             public void run() {
                 try {
-                    while (true) {
-                        send(queue.take());
+                    OutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
+                    while (checkConnected(socket)) {
+                        Message message = queue.take();
+                        Log.i(TAG, "Sending message over Bluetooth");
+                        outputStream.write(message.toJSON(context).getBytes());
+                        outputStream.write('\r');
+                        outputStream.write('\n');
+                        outputStream.flush();
                     }
-                } catch (InterruptedException ex) {
-                    Log.i(TAG, "Sender thread interrupted.");
+                } catch (InterruptedException e) {
+                    Log.i(TAG, "Sender thread interrupted");
+                } catch (IOException e) {
+                    Log.e(TAG, "Error in sender thread", e);
                 }
+                cleanup(socket);
+            }
+            private boolean checkConnected(BluetoothSocket socket) {
+                return socket != null && socket.isConnected();
             }
         };
         senderThread.start();
     }
 
-    private void send(Message m) {
-        if (!isConnected()) {
-            // Bluetooth is disabled, we just ignore messages
-            return;
-        }
-
-        Log.i(TAG, "Sending message over Bluetooth");
-        try {
-            outputStream.write(m.toJSON(context).getBytes());
-            outputStream.write('\r');
-            outputStream.write('\n');
-            outputStream.flush();
-        } catch (IOException e) {
+    private void cleanup(BluetoothSocket socket) {
+        if (socket != null) {
             try {
-                outputStream.close();
-            } catch (IOException e1) {
-            } finally {
-                outputStream = null;
+                OutputStream outputStream = socket.getOutputStream();
+                try {
+                    outputStream.flush();
+                    outputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Error closing output stream", e);
+                }
+            } catch (IOException e) {
             }
-            Log.e(TAG, "Error sending message over Bluetooth", e);
-        }
-    }
 
-    public boolean isConnected() {
-        return socket != null && outputStream != null && socket.isConnected();
+            try {
+                socket.close();
+            } catch (IOException e) {
+                Log.e(TAG, "Error closing socket", e);
+            }
+        }
+        queue.clear();
+        handler.onConnectionClosed(this);
     }
 
     public boolean enqueue(Message m) {
@@ -107,40 +96,5 @@ public class Connection extends Thread {
 
     public void close() {
         senderThread.interrupt();
-        if (outputStream != null) {
-            try {
-                outputStream.flush();
-                outputStream.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing output stream", e);
-            } finally {
-                outputStream = null;
-            }
-        }
-
-        if (inputStream != null) {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing input stream", e);
-            } finally {
-                inputStream = null;
-            }
-        }
-
-        if (socket != null) {
-            try {
-                socket.getOutputStream().close();
-                socket.getInputStream().close();
-                socket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error closing socket", e);
-            } finally {
-                socket = null;
-            }
-        }
-        queue.clear();
     }
-
-
 }
