@@ -56,13 +56,13 @@ public class NotificationListenerService extends android.service.notification.No
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Log.i(TAG, "Notification from " + sbn.getPackageName() + ", prio=" + sbn.getNotification().priority);
+        Log.d(TAG, "Notification from " + sbn.getPackageName() + ", prio=" + sbn.getNotification().priority);
         server.onNotificationPosted(sbn);
     }
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        Log.i(TAG, "Notification from " + sbn.getPackageName() + " removed");
+        Log.d(TAG, "Notification from " + sbn.getPackageName() + " removed");
         server.onNotificationRemoved(sbn);
     }
 }
