@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -79,18 +80,20 @@ public class Connection extends Thread {
                 try {
                     InputStream inputStream = new BufferedInputStream(socket.getInputStream());
                     while (checkConnected(socket) && !gracefulClose) {
-                        Log.i(TAG, "Waiting for message over Bluetooth");
-
                         int c;
                         if ((c = inputStream.read()) == -1) {
                             throw new IOException("End of input stream reached");
                         }
                         baos.write((byte) c);
                         if (c == '\n') {
-                            byte[] data = baos.toByteArray();
-                            String message = new String(data);
-                            Log.i(TAG, "Read " + data.length + " bytes: " + message);
-                            handler.onMessageReceived(message);
+                            String data = new String(baos.toByteArray(), Charset.forName("UTF-8"));
+                            Log.i(TAG, "Read " + data.length() + " chars");
+                            try {
+                                IncomingMessage message = new IncomingMessage(data);
+                                handler.onMessageReceived(message);
+                            } catch (IOException e) {
+                                Log.e(TAG, "Unable to parse: " + data);
+                            }
                             baos.reset();
                         }
                     }

@@ -19,8 +19,8 @@ package org.holylobster.nuntius;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -33,11 +33,8 @@ import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import org.holylobster.nuntius.activity.SettingsActivity;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,9 +52,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private int minNotificationPriority = Notification.PRIORITY_DEFAULT;
 
-    private final Context context;
+    private final NotificationListenerService context;
 
-    Server(Context context) {
+    Server(NotificationListenerService context) {
         this.context = context;
     }
 
@@ -89,7 +86,12 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 && notification.priority >= minNotificationPriority
                 // Notification flags
                 && !isOngoing(notification)
-                && !isLocalOnly(notification);
+                && !isLocalOnly(notification)
+                && !isBlacklisted(sbn);
+    }
+
+    private boolean isBlacklisted(StatusBarNotification sbn) {
+        return sbn.getPackageName().equals("com.rageconsulting.android.lightflow");
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
@@ -207,7 +209,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
         acceptThread = new Thread() {
             public void run() {
-                Log.d(TAG, "Listen server started");
+                Log.i(TAG, "Listen server started");
 
                 BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -222,8 +224,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                             Log.i(TAG, ">>Connection opened (" + socket.getDestination() + ")");
                             connections.add(new Connection(context, socket, new Handler() {
                                 @Override
-                                public void onMessageReceived(String message) {
+                                public void onMessageReceived(IncomingMessage message) {
                                     Log.d(TAG, "Message received: " + message);
+                                    manageNotificationActions(message);
                                 }
 
                                 @Override
@@ -246,9 +249,39 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 } catch (IOException e) {
                     Log.e(TAG, "Error in listenUsingRfcommWithServiceRecord", e);
                 }
+                Log.i(TAG, "Listen server stopped");
             }
         };
         acceptThread.start();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void manageNotificationActions(IncomingMessage message) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+        String key = message.getKey();
+        if (key != null) {
+            StatusBarNotification[] activeNotifications = context.getActiveNotifications(new String[] { key });
+
+            if (activeNotifications.length > 0) {
+                StatusBarNotification activeNotification = activeNotifications[0];
+                if ("dismiss".equals(message.getAction())) {
+                    context.cancelNotification(key);
+                } else if (message.getCustomAction() != null) {
+                    for (Notification.Action action : activeNotification.getNotification().actions) {
+                        if (message.getCustomAction().equals(action.title)) {
+                            try {
+                                action.actionIntent.send();
+                            } catch (PendingIntent.CanceledException e) {
+                                Log.e(TAG, "Pending Intent for action " + message.getCustomAction() + " was cancelled.", e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     private void stopThread() {

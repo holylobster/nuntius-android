@@ -18,6 +18,6 @@
 package org.holylobster.nuntius;
 
 public interface Handler {
-    void onMessageReceived(String message);
+    void onMessageReceived(IncomingMessage message);
     void onConnectionClosed(Connection connection);
 }
