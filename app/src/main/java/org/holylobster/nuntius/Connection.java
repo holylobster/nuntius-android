@@ -17,12 +17,12 @@
 
 package org.holylobster.nuntius;
 
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,16 +36,24 @@ public class Connection extends Thread {
     private final BlockingQueue<Message> queue = new LinkedBlockingDeque<>();
 
     private final Thread senderThread;
+    private final Thread receiverThread;
+    private final Socket socket;
 
     private final Handler handler;
+    private final String destination;
 
-    Connection(final Context context, final BluetoothSocket socket, Handler handler) {
+    boolean gracefulClose = false;
+
+    Connection(final Context context, final Socket socket, final Handler handler) {
+        this.socket = socket;
         this.handler = handler;
+        this.destination = socket.getDestination();
+
         senderThread = new Thread() {
             public void run() {
                 try {
                     OutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
-                    while (checkConnected(socket)) {
+                    while (checkConnected(socket) && !gracefulClose) {
                         Message message = queue.take();
                         Log.i(TAG, "Sending message over Bluetooth");
                         outputStream.write(message.toJSON(context).getBytes());
@@ -54,28 +62,69 @@ public class Connection extends Thread {
                         outputStream.flush();
                     }
                 } catch (InterruptedException e) {
-                    Log.i(TAG, "Sender thread interrupted");
+                    Log.i(TAG, "Sender thread interrupted while waiting for a message");
                 } catch (IOException e) {
                     Log.e(TAG, "Error in sender thread", e);
                 }
+                Log.i(TAG, "Sender thread is closing...");
                 cleanup(socket);
             }
-            private boolean checkConnected(BluetoothSocket socket) {
+            private boolean checkConnected(Socket socket) {
                 return socket != null && socket.isConnected();
             }
         };
+        receiverThread = new Thread() {
+            public void run() {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+                try {
+                    InputStream inputStream = new BufferedInputStream(socket.getInputStream());
+                    while (checkConnected(socket) && !gracefulClose) {
+                        Log.i(TAG, "Waiting for message over Bluetooth");
+
+                        int c;
+                        if ((c = inputStream.read()) == -1) {
+                            throw new IOException("End of input stream reached");
+                        }
+                        baos.write((byte) c);
+                        if (c == '\n') {
+                            byte[] data = baos.toByteArray();
+                            String message = new String(data);
+                            Log.i(TAG, "Read " + data.length + " bytes: " + message);
+                            handler.onMessageReceived(message);
+                            baos.reset();
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Error in receiver thread", e);
+                }
+                Log.i(TAG, "Receiver thread is closing...");
+                cleanup(socket);
+            }
+            private boolean checkConnected(Socket socket) {
+                return socket != null && socket.isConnected();
+            }
+        };
+        receiverThread.start();
         senderThread.start();
     }
 
-    private void cleanup(BluetoothSocket socket) {
+    private void cleanup(Socket socket) {
+        Log.i(TAG, "Cleanup of connection resources...");
         if (socket != null) {
+            try {
+                InputStream inputStream = socket.getInputStream();
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                }
+            } catch (IOException e) {
+            }
             try {
                 OutputStream outputStream = socket.getOutputStream();
                 try {
                     outputStream.flush();
                     outputStream.close();
                 } catch (IOException e) {
-                    Log.e(TAG, "Error closing output stream", e);
                 }
             } catch (IOException e) {
             }
@@ -87,6 +136,7 @@ public class Connection extends Thread {
             }
         }
         queue.clear();
+        Log.i(TAG, "Cleanup completed");
         handler.onConnectionClosed(this);
     }
 
@@ -95,6 +145,25 @@ public class Connection extends Thread {
     }
 
     public void close() {
-        senderThread.interrupt();
+        gracefulClose = true;
+        // Wait for max 250 * 10 = 2.5s for threads to gracefully close
+        for (int i = 0; i < 10 && (senderThread.isAlive() || receiverThread.isAlive()); i++)  {
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+            }
+        }
+        // Kill threads if the did not close in time
+        if (senderThread.isAlive()) {
+            senderThread.interrupt();
+        }
+        if (receiverThread.isAlive()) {
+            receiverThread.interrupt();
+        }
+        cleanup(socket);
+    }
+
+    public String getDestination() {
+        return destination;
     }
 }

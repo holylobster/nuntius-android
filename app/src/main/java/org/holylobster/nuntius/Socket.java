@@ -17,7 +17,18 @@
 
 package org.holylobster.nuntius;
 
-public interface Handler {
-    void onMessageReceived(String message);
-    void onConnectionClosed(Connection connection);
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public interface Socket {
+    OutputStream getOutputStream() throws IOException;
+
+    boolean isConnected();
+
+    InputStream getInputStream() throws IOException;
+
+    void close() throws IOException;
+
+    String getDestination();
 }

@@ -119,7 +119,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     public void start() {
-        Log.d(TAG, "Server starting...");
+        Log.i(TAG, "Server starting...");
 
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(this, filter);
@@ -217,18 +217,19 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
                     while (serverSocket != null && btAdapter.isEnabled()) {
                         try {
-                            BluetoothSocket socket = serverSocket.accept();
-                            BluetoothDevice remoteDevice = socket.getRemoteDevice();
-                            Log.d(TAG, ">>Accept Client Request from: " + remoteDevice.getName() + "(" + remoteDevice.getAddress() + ")");
+                            BluetoothSocket bluetoothSocket = serverSocket.accept();
+                            Socket socket = new BluetoothSocketAdapter(bluetoothSocket);
+                            Log.i(TAG, ">>Connection opened (" + socket.getDestination() + ")");
                             connections.add(new Connection(context, socket, new Handler() {
                                 @Override
-                                public void onMessageReceived() {
-                                    Log.d(TAG, "Message received");
+                                public void onMessageReceived(String message) {
+                                    Log.d(TAG, "Message received: " + message);
                                 }
 
                                 @Override
                                 public void onConnectionClosed(Connection connection) {
                                     connections.remove(connection);
+                                    Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
                                     notifyListener(getStatusMessage());
                                 }
                             }));
