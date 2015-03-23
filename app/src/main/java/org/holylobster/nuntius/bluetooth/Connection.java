@@ -61,8 +61,9 @@ public class Connection extends Thread {
                     OutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
                     while (checkConnected(socket) && !gracefulClose) {
                         Message message = queue.take();
-                        Log.i(TAG, "Sending message over Bluetooth");
-                        outputStream.write(message.toJSON(context).getBytes());
+                        String json = message.toJSON(context);
+                        Log.i(TAG, "Sending message over Bluetooth (size " + json.length() + ")");
+                        outputStream.write(json.getBytes());
                         outputStream.write('\r');
                         outputStream.write('\n');
                         outputStream.flush();
