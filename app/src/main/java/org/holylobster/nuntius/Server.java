@@ -21,13 +21,13 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
@@ -48,18 +48,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.holylobster.nuntius.bluetooth.BluetoothConnectionProvider;
+import org.holylobster.nuntius.network.NetworkConnectionProvider;
 
-public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener {
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-    public static final String PROTOCOL_SCHEME_RFCOMM = "btspp";
+public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener, ConnectionManager {
 
     private static final String TAG = Server.class.getSimpleName();
 
-    private static final UUID uuidSpp = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private final List<Connection> connections = new CopyOnWriteArrayList<>();
 
-    private final List<Connection> connections = new ArrayList<>();
-    private Thread acceptThread;
-    private BluetoothServerSocket serverSocket;
+    private BluetoothConnectionProvider bluetoothConnectionProvider;
+    private NetworkConnectionProvider networkConnectionProvider;
 
     private Set<String> blacklistedApp;
 
@@ -164,7 +166,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     public String getStatusMessage() {
         if (bluetoothEnabled() && getNumberOfConnections() == 0 ) {
             return "pair";
-        } else if (acceptThread != null && acceptThread.isAlive()) {
+        } else if (bluetoothConnectionProvider != null && bluetoothConnectionProvider.isAlive()) {
             return  "connection";
         } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
             return "notification";
@@ -220,59 +222,27 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private void startThread() {
-        if (!bluetoothEnabled()) {
-            Log.i(TAG, "Bluetooth not available or enabled. Cannot start server thread.");
-            return;
+        if (bluetoothEnabled()) {
+            bluetoothConnectionProvider = new BluetoothConnectionProvider(this);
+            bluetoothConnectionProvider.start();
+        }
+        else {
+            Log.i(TAG, "Bluetooth not available or enabled. Cannot start Bluetooth server");
+        }
+
+        if (networkAvailable()) {
+            networkConnectionProvider = new NetworkConnectionProvider(this);
+            networkConnectionProvider.start();
         }
 
         notifyListener(getStatusMessage());
+    }
 
-        acceptThread = new Thread() {
-            public void run() {
-                Log.i(TAG, "Listen server started");
+    private boolean networkAvailable() {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-                BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                try {
-                    serverSocket = btAdapter.listenUsingInsecureRfcommWithServiceRecord(PROTOCOL_SCHEME_RFCOMM, uuidSpp);
-                    Log.d(TAG, "Server socket created");
-
-                    while (serverSocket != null && btAdapter.isEnabled()) {
-                        try {
-                            BluetoothSocket bluetoothSocket = serverSocket.accept();
-                            Socket socket = new BluetoothSocketAdapter(bluetoothSocket);
-                            Log.i(TAG, ">>Connection opened (" + socket.getDestination() + ")");
-                            connections.add(new Connection(context, socket, new Handler() {
-                                @Override
-                                public void onMessageReceived(IncomingMessage message) {
-                                    Log.d(TAG, "Message received: " + message);
-                                    manageNotificationActions(message);
-                                }
-
-                                @Override
-                                public void onConnectionClosed(Connection connection) {
-                                    connections.remove(connection);
-                                    Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
-                                    notifyListener(getStatusMessage());
-                                }
-                            }));
-                            notifyListener(getStatusMessage());
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error during accept", e);
-                            Log.i(TAG, "Waiting 5 seconds before accepting again...");
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e1) {
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Error in listenUsingRfcommWithServiceRecord", e);
-                }
-                Log.i(TAG, "Listen server stopped");
-            }
-        };
-        acceptThread.start();
+        return mWifi.isConnected();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -306,28 +276,25 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private void stopThread() {
         Log.i(TAG, "Stopping server thread.");
-        if (acceptThread != null) {
-            acceptThread.interrupt();
-            for (Connection connection : connections) {
-                connection.close();
-            }
-            connections.clear();
-            Log.i(TAG, "Server thread stopped.");
+        if (bluetoothConnectionProvider != null) {
+            bluetoothConnectionProvider.close();
+            Log.i(TAG, "Bluetooth Server thread stopped.");
         } else {
-            Log.i(TAG, "Server thread already stopped.");
+            Log.i(TAG, "Bluetooth Server thread already stopped.");
         }
 
-        if (serverSocket != null) {
-            Log.i(TAG, "Closing server listening socket...");
-            try {
-                serverSocket.close();
-                Log.i(TAG, "Server listening socket closed.");
-            } catch (IOException e) {
-                Log.e(TAG, "Unable to close server socket", e);
-            } finally {
-                serverSocket = null;
-            }
+        if (networkConnectionProvider != null) {
+            networkConnectionProvider.close();
+            Log.i(TAG, "Network Server thread stopped.");
+        } else {
+            Log.i(TAG, "Network Server thread already stopped.");
         }
+
+        for (Connection connection : connections) {
+            connection.close();
+        }
+        connections.clear();
+
         notifyListener(getStatusMessage());
     }
 
@@ -338,4 +305,21 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         context.sendBroadcast(intent);
     }
 
+    public void newConnection(Socket socket) {
+        connections.add(new Connection(context, socket, new Handler() {
+            @Override
+            public void onMessageReceived(IncomingMessage message) {
+                Log.d(TAG, "Message received: " + message);
+                manageNotificationActions(message);
+            }
+
+            @Override
+            public void onConnectionClosed(Connection connection) {
+                connections.remove(connection);
+                Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
+                notifyListener(getStatusMessage());
+            }
+        }));
+        notifyListener(getStatusMessage());
+    }
 }
