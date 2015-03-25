@@ -18,5 +18,12 @@
     <string name="notification_not_enabled">Nuntius requires access to the notification to be enabled</string>
     <string name="not_paired">Please pair your device to a computer</string>
     <string name="version">Nuntius Version</string>
+    <string name="app_blacklist_title">Blacklisted Apps</string>
+    <string name="app_blacklist_summary">Ignore notifications from selected apps</string>
+    <string name="blacklisted_title">Blacklisted Apps</string>
+    <string name="blacklist_title">Add Apps to Blacklist</string>
+    <string name="added_to_blacklist">%s blacklisted</string>
+    <string name="removed_from_blacklist">%s removed from blacklist</string>
+    <string name="undo">Undo</string>
 
 </resources>

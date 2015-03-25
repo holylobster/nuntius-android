@@ -33,6 +33,15 @@ import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import org.holylobster.nuntius.bluetooth.BluetoothSocketAdapter;
+import org.holylobster.nuntius.bluetooth.Connection;
+import org.holylobster.nuntius.notifications.Handler;
+import org.holylobster.nuntius.notifications.IncomingMessage;
+import org.holylobster.nuntius.notifications.IntentRequestCodes;
+import org.holylobster.nuntius.notifications.Message;
+import org.holylobster.nuntius.notifications.NotificationListenerService;
+import org.holylobster.nuntius.data.BlacklistedApp;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +63,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private final NotificationListenerService context;
 
-    Server(NotificationListenerService context) {
+    private BlacklistedApp blacklistedApp;
+
+    public Server(NotificationListenerService context) {
         this.context = context;
     }
 
@@ -80,6 +91,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private boolean filter(StatusBarNotification sbn) {
         Notification notification = sbn.getNotification();
+        Log.d("blacklist", " " + blacklistedApp.getBlacklistedApp());
         return
                 notification != null
                 // Filter low priority notifications
@@ -91,7 +103,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean isBlacklisted(StatusBarNotification sbn) {
-        return sbn.getPackageName().equals("com.rageconsulting.android.lightflow");
+        return blacklistedApp.getBlacklistedApp().contains(sbn.getPackageName());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
@@ -122,12 +134,14 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public void start() {
         Log.i(TAG, "Server starting...");
-
+        blacklistedApp = new BlacklistedApp();
+        Log.d("bl start", ""  + blacklistedApp.getBlacklistedApp());
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(this, filter);
 
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
         boolean mustRun = defaultSharedPreferences.getBoolean("main_enable_switch", true);
 
         if (mustRun) {

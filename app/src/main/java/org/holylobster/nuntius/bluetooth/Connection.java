@@ -15,10 +15,15 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.bluetooth;
 
 import android.content.Context;
 import android.util.Log;
+
+import org.holylobster.nuntius.Socket;
+import org.holylobster.nuntius.notifications.Handler;
+import org.holylobster.nuntius.notifications.IncomingMessage;
+import org.holylobster.nuntius.notifications.Message;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,7 +50,7 @@ public class Connection extends Thread {
 
     boolean gracefulClose = false;
 
-    Connection(final Context context, final Socket socket, final Handler handler) {
+    public Connection(final Context context, final Socket socket, final Handler handler) {
         this.socket = socket;
         this.handler = handler;
         this.destination = socket.getDestination();
