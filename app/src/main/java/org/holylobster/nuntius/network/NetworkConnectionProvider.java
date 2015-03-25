@@ -32,7 +32,7 @@ public class NetworkConnectionProvider implements ConnectionProvider {
 
     private final ConnectionManager connectionManager;
 
-    private final int port = 12233;
+    final int port = 12233;
 
     private ServerSocket serverSocket;
 
@@ -45,7 +45,7 @@ public class NetworkConnectionProvider implements ConnectionProvider {
                 Log.i(TAG, "Listen server started");
 
                 try {
-                    serverSocket = new ServerSocket(port);
+                    serverSocket = getServerSocket();
 
                     Log.d(TAG, "Server socket created " + serverSocket.getLocalSocketAddress() + ", bound: " + serverSocket.isBound());
 
@@ -64,12 +64,16 @@ public class NetworkConnectionProvider implements ConnectionProvider {
                             }
                         }
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "Error in listenUsingRfcommWithServiceRecord", e);
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in accept", e);
                 }
                 Log.i(TAG, "Listen server stopped");
             }
         };
+    }
+
+    ServerSocket getServerSocket() throws Exception {
+        return new ServerSocket(port);
     }
 
     public void close() {

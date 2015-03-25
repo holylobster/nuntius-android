@@ -86,10 +86,14 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="spongy-castle-pkix-1.51.0.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="android-integration-3.2.0" level="project" />
     <orderEntry type="library" exported="" name="snackbar-2.10.2" level="project" />
+    <orderEntry type="library" exported="" name="spongy-castle-core-1.51.0.0" level="project" />
+    <orderEntry type="library" exported="" name="spongy-castle-prov-1.51.0.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-21.0.3" level="project" />
   </component>
 </module>

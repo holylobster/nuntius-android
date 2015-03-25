@@ -27,4 +27,8 @@ dependencies {
     compile 'com.nispok:snackbar:2.10.2'
     compile 'com.android.support:appcompat-v7:21.0.+'
     compile 'com.android.support:recyclerview-v7:21.0.+'
+    compile files('lib/android-integration-3.2.0.jar')
+    compile files('lib/spongy-castle-core-1.51.0.0.jar')
+    compile files('lib/spongy-castle-pkix-1.51.0.0.jar')
+    compile files('lib/spongy-castle-prov-1.51.0.0.jar')
 }
