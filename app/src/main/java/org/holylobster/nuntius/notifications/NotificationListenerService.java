@@ -15,12 +15,14 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.notifications;
 
 import android.content.Intent;
 import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import org.holylobster.nuntius.Server;
 
 public class NotificationListenerService extends android.service.notification.NotificationListenerService {
 

@@ -17,4 +17,5 @@
         <item name="android:textColor">@color/grey_light</item>
         <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
     </style>
+
 </resources>
