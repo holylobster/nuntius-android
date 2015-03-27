@@ -19,5 +19,12 @@
     <string name="notification_not_enabled">Nuntius wymaga włączenia dostępu do powiadomień</string>
     <string name="not_paired">Proszę połączyć urządzenie z komputerem</string>
     <string name="version">Wersja programu Nuntius</string>
+    <string name="app_blacklist_title">Aplikacje na czarnej liście</string>
+    <string name="app_blacklist_summary">Ignoruje powiadomienia z wybranych aplikacji</string>
+    <string name="blacklisted_title">Aplikacje na czarnej liście</string>
+    <string name="blacklist_title">Dodanie aplikacji do czarnej listy</string>
+    <string name="added_to_blacklist">Dodano %s do czarnej listy</string>
+    <string name="removed_from_blacklist">Usunięto %s z czarnej listy</string>
+    <string name="undo">Cofnij</string>
 
 </resources>
