@@ -104,6 +104,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
     public void onResume(){
         super.onResume();
 
+        blacklistedApp.getFromPref();
         adapter.refresh(blacklistedApp.getBlacklistedAppList());
 
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
