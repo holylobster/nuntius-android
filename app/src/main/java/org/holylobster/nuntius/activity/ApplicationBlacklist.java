@@ -96,6 +96,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
                             public void onActionClicked(Snackbar snackbar) {
                                 blacklistedApp.add(app);
                                 adapter.refresh(blacklistedApp.getBlacklistedAppList());
+                                checkIfEmpty();
                             }
                         }) // action button's ActionClickListener
                         .text(getString(R.string.removed_from_blacklist, pm.getApplicationLabel(app))), this);
