@@ -1,5 +1,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <PreferenceCategory
+        android:title="@string/settings">
+
     <SwitchPreference
         android:key="main_enable_switch"
         android:title="@string/enable_nuntius"
@@ -14,6 +17,11 @@
         android:entryValues="@array/pref_min_notification_priority_values"
         android:defaultValue="@string/pref_min_notification_priority_default" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/blacklist">
+
     <Preference
         android:key="app_blacklist"
         android:title="@string/app_blacklist_title"
@@ -27,28 +35,35 @@
 
     </Preference>
 
-    <Preference
-        android:key="license"
-        android:title="@string/pref_license_title"
-        android:summary="@string/license_type">
-    </Preference>
+    </PreferenceCategory>
 
-    <Preference
-        android:key="web_site"
-        android:title="@string/holylobster"
-        android:summary="@string/web_site">
+    <PreferenceCategory
+        android:title="@string/app_info">
 
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="@string/web_site"
-            />
+        <Preference
+            android:key="license"
+            android:title="@string/pref_license_title"
+            android:summary="@string/license_type">
+        </Preference>
 
-    </Preference>
+        <Preference
+            android:key="web_site"
+            android:title="@string/holylobster"
+            android:summary="@string/web_site">
 
-    <Preference
-        android:key="version"
-        android:title="@string/version"
-        android:summary="">
-    </Preference>
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/web_site"
+                />
+
+        </Preference>
+
+        <Preference
+            android:key="version"
+            android:title="@string/version"
+            android:summary="">
+        </Preference>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
