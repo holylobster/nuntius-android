@@ -37,8 +37,12 @@ public class NotificationListenerService extends android.service.notification.No
         IBinder mIBinder = super.onBind(mIntent);
         Log.i(TAG, "onBind");
         isNotificationAccessEnabled = true;
-        server = new Server(this);
-        server.start();
+        try {
+            server = new Server(this);
+            server.start();
+        } catch (Exception e) {
+            Log.e(TAG, "Error during bind", e);
+        }
         return mIBinder;
     }
 
@@ -47,8 +51,12 @@ public class NotificationListenerService extends android.service.notification.No
         boolean mOnUnbind = super.onUnbind(mIntent);
         Log.i(TAG, "onUnbind");
         isNotificationAccessEnabled = false;
-        server.stop();
-        server = null;
+        try {
+            server.stop();
+            server = null;
+        } catch (Exception e) {
+            Log.e(TAG, "Error during unbind", e);
+        }
         return mOnUnbind;
     }
 
