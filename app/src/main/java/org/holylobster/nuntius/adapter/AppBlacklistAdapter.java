@@ -17,6 +17,7 @@
 
 package org.holylobster.nuntius.adapter;
 
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.holylobster.nuntius.R;
-import org.holylobster.nuntius.activity.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +47,8 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
         this.itemClickListener = itemClickListener;
     }
 
-    public AppBlacklistAdapter(List<ApplicationInfo> packages) {
-        this.pm = SettingsActivity.getContext().getPackageManager();
+    public AppBlacklistAdapter(Context c, List<ApplicationInfo> packages) {
+        this.pm = c.getPackageManager();
         this.appInfos = new ArrayList<>(packages);
     }
 

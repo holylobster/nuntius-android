@@ -59,14 +59,15 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     private Thread acceptThread;
     private BluetoothServerSocket serverSocket;
 
+    private BlacklistedApp blacklistedApp;
+
     private int minNotificationPriority = Notification.PRIORITY_DEFAULT;
 
     private final NotificationListenerService context;
 
-    private BlacklistedApp blacklistedApp;
-
     public Server(NotificationListenerService context) {
         this.context = context;
+        this.blacklistedApp = new BlacklistedApp(context);
     }
 
     public static boolean bluetoothEnabled() {
@@ -91,7 +92,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private boolean filter(StatusBarNotification sbn) {
         Notification notification = sbn.getNotification();
-        Log.d("blacklist", " " + blacklistedApp.getBlacklistedApp());
+        Log.d("blacklist", " " + blacklistedApp.getBlacklistedAppList());
         return
                 notification != null
                 // Filter low priority notifications
@@ -103,7 +104,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean isBlacklisted(StatusBarNotification sbn) {
-        return blacklistedApp.getBlacklistedApp().contains(sbn.getPackageName());
+        return blacklistedApp.getBlacklistedAppList().contains(sbn.getPackageName());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
@@ -134,8 +135,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public void start() {
         Log.i(TAG, "Server starting...");
-        blacklistedApp = new BlacklistedApp();
-        Log.d("bl start", ""  + blacklistedApp.getBlacklistedApp());
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         context.registerReceiver(this, filter);
 
@@ -198,6 +197,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.i(TAG, "Changes to preference " + key);
         switch (key) {
             case "main_enable_switch":
                 if (sharedPreferences.getBoolean("main_enable_switch", true)) {
@@ -208,6 +208,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 break;
             case "pref_min_notification_priority":
                 minNotificationPriority = Integer.parseInt(sharedPreferences.getString("pref_min_notification_priority", String.valueOf(Notification.PRIORITY_DEFAULT)));
+                break;
+            case "BlackList":
+                blacklistedApp = new BlacklistedApp(context);
                 break;
             default:
         }

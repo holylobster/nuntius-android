@@ -21,9 +21,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
-
-import org.holylobster.nuntius.activity.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,53 +35,55 @@ import java.util.List;
 public class BlacklistedApp {
     private static final String TAG = BlacklistedApp.class.getSimpleName();
 
-    private static List<ApplicationInfo> blacklistedApp;
-    private Context context = SettingsActivity.getContext();
-    private PackageManager pm = context.getPackageManager();
-    private SharedPreferences settings;
+    private List<ApplicationInfo> blacklistedAppList;
+    private Context context;
+    private PackageManager pm;
 
-    public BlacklistedApp() {
-        context = SettingsActivity.getContext();
+    public BlacklistedApp(Context c) {
+        context = c;
         pm = context.getPackageManager();
-        settings = context.getSharedPreferences("BlackListSP", context.MODE_PRIVATE);
+        getFromPref();
+    }
 
-        ArrayList<String> bl = new ArrayList<>(settings.getStringSet("BlackList", new HashSet<String>()));
-        blacklistedApp = new ArrayList<>();
-        for (int i = 0; i< bl.size(); i++){
+    private void getFromPref() {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        blacklistedAppList = new ArrayList<>();
+        for (String packageName : defaultSharedPreferences.getStringSet("BlackList", new HashSet<String>())) {
             try {
-                blacklistedApp.add(pm.getApplicationInfo(bl.get(i), 0));
+                blacklistedAppList.add(pm.getApplicationInfo(packageName, 0));
             } catch (PackageManager.NameNotFoundException e) {
                 Log.e(TAG, "Error retrieving application info", e);
             }
         }
-        Collections.sort(blacklistedApp, new ApplicationInfo.DisplayNameComparator(pm));
+        Collections.sort(blacklistedAppList, new ApplicationInfo.DisplayNameComparator(pm));
     }
 
-    public List<ApplicationInfo> getBlacklistedApp(){
-        return blacklistedApp;
+    public List<ApplicationInfo> getBlacklistedAppList() {
+        return blacklistedAppList;
     }
 
-    public void add(ApplicationInfo app){
-        blacklistedApp.add(app);
+    public void add(ApplicationInfo app) {
+        blacklistedAppList.add(app);
         sortAndPush();
     }
 
-    public void remove(int i){
-        blacklistedApp.remove(i);
+    public void remove(int i) {
+        blacklistedAppList.remove(i);
         sortAndPush();
     }
 
-    public void sortAndPush(){
-        Collections.sort(blacklistedApp, new ApplicationInfo.DisplayNameComparator(pm));
+    private void sortAndPush() {
+        Collections.sort(blacklistedAppList, new ApplicationInfo.DisplayNameComparator(pm));
         pushToPref();
     }
 
-    public void pushToPref(){
-        SharedPreferences.Editor editor = settings.edit();
+    public void pushToPref() {
         ArrayList<String> bl = new ArrayList<>();
-        for (int i = 0; i< blacklistedApp.size(); i++){
-            bl.add(blacklistedApp.get(i).packageName);
+        for (ApplicationInfo applicationInfo : blacklistedAppList) {
+            bl.add(applicationInfo.packageName);
         }
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = defaultSharedPreferences.edit();
         editor.putStringSet("BlackList", new HashSet<>(bl));
         editor.commit();
     }

@@ -46,13 +46,10 @@ public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
-    private static Context context;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        context = getApplicationContext();
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
@@ -204,10 +201,6 @@ public class SettingsActivity extends ActionBarActivity {
             // Create the AlertDialog object and return it
             return builder.create();
         }
-    }
-
-    public static Context getContext(){
-        return context;
     }
 
 }
