@@ -44,7 +44,9 @@ import org.holylobster.nuntius.data.BlacklistedApp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -59,7 +61,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     private Thread acceptThread;
     private BluetoothServerSocket serverSocket;
 
-    private BlacklistedApp blacklistedApp;
+    private Set<String> blacklistedApp;
 
     private int minNotificationPriority = Notification.PRIORITY_DEFAULT;
 
@@ -67,7 +69,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public Server(NotificationListenerService context) {
         this.context = context;
-        this.blacklistedApp = new BlacklistedApp(context);
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        blacklistedApp = defaultSharedPreferences.getStringSet("BlackList", new HashSet<String>());
     }
 
     public static boolean bluetoothEnabled() {
@@ -92,7 +95,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private boolean filter(StatusBarNotification sbn) {
         Notification notification = sbn.getNotification();
-        Log.d("blacklist", " " + blacklistedApp.getBlacklistedAppList());
+        Log.d("blacklist", " " + blacklistedApp);
         return
                 notification != null
                 // Filter low priority notifications
@@ -104,7 +107,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private boolean isBlacklisted(StatusBarNotification sbn) {
-        return blacklistedApp.getBlacklistedAppList().contains(sbn.getPackageName());
+        return blacklistedApp.contains(sbn.getPackageName());
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
@@ -210,7 +213,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 minNotificationPriority = Integer.parseInt(sharedPreferences.getString("pref_min_notification_priority", String.valueOf(Notification.PRIORITY_DEFAULT)));
                 break;
             case "BlackList":
-                blacklistedApp = new BlacklistedApp(context);
+                blacklistedApp = sharedPreferences.getStringSet("BlackList", new HashSet<String>());
                 break;
             default:
         }
