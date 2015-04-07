@@ -45,7 +45,7 @@ public class BlacklistedApp {
         getFromPref();
     }
 
-    private void getFromPref() {
+    public void getFromPref() {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         blacklistedAppList = new ArrayList<>();
         for (String packageName : defaultSharedPreferences.getStringSet("BlackList", new HashSet<String>())) {
