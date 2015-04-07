@@ -111,9 +111,9 @@ public class ApplicationBlacklist extends ActionBarActivity {
         checkIfEmpty();
     }
 
-    public void checkIfEmpty(){
+    public void checkIfEmpty() {
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
-        if (blacklistedApp.getBlacklistedAppList().isEmpty()){
+        if (blacklistedApp.getBlacklistedAppList().isEmpty()) {
             linearLayout.setVisibility(View.VISIBLE);
         } else {
             linearLayout.setVisibility(View.GONE);
