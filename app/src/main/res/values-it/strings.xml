@@ -16,4 +16,12 @@
     </plurals>
     <string name="pref_min_notification_priority">Priorità minima notifiche</string>
     <string name="pref_min_notification_priority_summary">Invia solo notifiche con priorità uguale o superiore</string>
+    <string name="removed_from_blacklist">%s rimossa dalla blacklist</string>
+    <string name="undo">Annulla</string>
+    <string name="version">Versione Nuntius</string>
+    <string name="blacklisted_title">Applicationi in Blacklist</string>
+    <string name="blacklist_title">Aggiungi alla Blacklist</string>
+    <string name="app_blacklist_title">Applicationi in Blacklist</string>
+    <string name="app_blacklist_summary">Ignora notifiche dalle applicazioni selezionate</string>
+    <string name="added_to_blacklist">%s è in blacklist</string>
 </resources>
