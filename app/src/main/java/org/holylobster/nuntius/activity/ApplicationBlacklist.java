@@ -83,6 +83,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
         blacklistedApp.remove(i);
         adapter.refresh(blacklistedApp.getBlacklistedAppList());
         showInfo(oldApp);
+        checkIfEmpty();
     }
 
     public void showInfo(final ApplicationInfo app) {
@@ -107,8 +108,14 @@ public class ApplicationBlacklist extends ActionBarActivity {
         blacklistedApp.getFromPref();
         adapter.refresh(blacklistedApp.getBlacklistedAppList());
 
+        checkIfEmpty();
+    }
+
+    public void checkIfEmpty(){
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
-        if (!blacklistedApp.getBlacklistedAppList().isEmpty()){
+        if (blacklistedApp.getBlacklistedAppList().isEmpty()){
+            linearLayout.setVisibility(View.VISIBLE);
+        } else {
             linearLayout.setVisibility(View.GONE);
         }
     }
