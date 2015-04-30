@@ -17,6 +17,7 @@
     </plurals>
     <string name="notification_not_enabled">Nuntius vyžaduje povolenie prístupu k upozorneniam</string>
     <string name="not_paired">Prosím, spárujte vaše zariadenie s počítačom</string>
+    <string name="version">Verzia aplikácie Nuntius</string>
     <string name="app_blacklist_title">Aplikácie na čiernej listine</string>
     <string name="app_blacklist_summary">Ignorovanie upozornení od vybraných aplikácií</string>
     <string name="blacklisted_title">Aplikácie na čiernej listine</string>
