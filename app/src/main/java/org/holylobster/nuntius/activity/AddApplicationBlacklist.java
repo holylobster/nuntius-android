@@ -107,7 +107,7 @@ public class AddApplicationBlacklist extends ActionBarActivity {
         protected void onPostExecute(String message) {
             LinearLayout linearLayout = (LinearLayout) findViewById(R.id.centerLayout);
             linearLayout.setVisibility(View.GONE);
-            adapter = new AppBlacklistAdapter(getApplicationContext(), packages);
+            adapter = new AppBlacklistAdapter(getApplicationContext(), packages, false);
             recyclerView.setAdapter(adapter);
 
             adapter.SetOnItemClickListener(new AppBlacklistAdapter.OnItemClickListener() {
