@@ -25,5 +25,6 @@
     <string name="added_to_blacklist">%s blacklisted</string>
     <string name="removed_from_blacklist">%s removed from blacklist</string>
     <string name="undo">Undo</string>
+    <string name="enable_splash">Enable Splash Screen</string>
 
 </resources>
