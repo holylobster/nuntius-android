@@ -37,21 +37,36 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import org.holylobster.nuntius.BuildConfig;
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
+import org.holylobster.nuntius.utils.PairingData;
+import org.holylobster.nuntius.utils.SslUtils;
 
 
 public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
+    private static Context context;
+
+    private static PairingData currentPairingData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        try {
+            SslUtils.generateSelfSignedCertificate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
@@ -61,6 +76,22 @@ public class SettingsActivity extends ActionBarActivity {
                 .beginTransaction()
                 .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            String contents = scanResult.getContents();
+            Log.i(TAG, contents);
+            currentPairingData = new PairingData(contents);
+        }
+    }
+
+    public static PairingData getCurrentPairingData() {
+        PairingData p = currentPairingData;
+        currentPairingData = null;
+        return p;
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -70,6 +101,16 @@ public class SettingsActivity extends ActionBarActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
+
+            Preference myPref = (Preference) findPreference("qrcode");
+            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                    integrator.initiateScan();
+                    return true;
+                }
+            });
+
         }
 
         @Override
