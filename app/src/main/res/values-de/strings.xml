@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="dialog_ask_notification_access">Nuntius benötigt den Zugriff auf Benachrichtigungen. Wenn die Benachrichtigungseinstellungen sich öffnen, wähle die Nuntius Checkbox aus und bestätige den Zugriff.</string>
+    <string name="button_got_it">Verstanden!</string>
+    <string name="label_welcome_text">Nuntius erlaubt es Benachrichtigungen mit anderen Geräten zu teilen. 
+    Aktiviere einfach das Teilen von Benachrichtigungen für Nuntius nach dem Du "Verstanden!" betätigt hast 
+        und verbinde Bluetooth mit dem ausgewählten Gerät.
+    </string>
+    <string name="enable_nuntius">Aktiviere Nuntius</string>
+    <string name="bluetooth_not_available">Bluetooth ist nicht verfügbar auf diesem Gerät</string>
+    <string name="bluetooth_not_enabled">Nuntius erfordert das Bluetooth aktiv ist</string>
+    <string name="enable_notification_toast_hint">Zum Bestätigen wähle die "Nuntius" Checkbox aus. Danach drücke einfach die Zurück-Taste.</string>
+    <string name="pref_license_title">Lizenz</string>
+    <string name="pref_min_notification_priority">Minimale Priorität für Benachrichtigungen</string>
+    <string name="pref_min_notification_priority_summary">Setze die minimale Priorität für Benachrichtigungen von der Nuntius aus diese teilen wird.</string>
+    <plurals name="running_with_x_connections">
+        <item quantity="one">Läuft mit %1$d Verbindung.</item>
+        <item quantity="few">Läuft mit %1$d Verbindungen.</item>
+        <item quantity="other">Läuft mit %1$d Verbindungen.</item>
+    </plurals>
+    <string name="notification_not_enabled">Nuntius benötigt Zugriff auf Deine Benachrichtigungen, um aktiviert zu sein</string>
+    <string name="not_paired">Bitte schließen Sie das Gerät an den Computer an</string>
+    <string name="version">Programmversion von Nuntius</string>
+    <string name="app_blacklist_title">Anwendungen auf Blacklist </string>
+    <string name="app_blacklist_summary">Ignoriere Benachrichtigungen von ausgewählten Anwendungen</string>
+    <string name="blacklisted_title">Anwendungen auf Blacklist</string>
+    <string name="blacklist_title">Füge Anwendungen zur Blacklist hinzu</string>
+    <string name="added_to_blacklist">%s Blacklist hinzugefügt </string>
+    <string name="removed_from_blacklist">%s von Blacklist entfernt</string>
+    <string name="undo">Rückgäng machen</string>
+
+</resources>
