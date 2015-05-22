@@ -25,5 +25,8 @@
     <string name="added_to_blacklist">%s blacklisted</string>
     <string name="removed_from_blacklist">%s removed from blacklist</string>
     <string name="undo">Undo</string>
+    <string name="settings">Settings</string>
+    <string name="blacklist">Blacklist</string>
+    <string name="app_info">Application Info</string>
 
 </resources>
