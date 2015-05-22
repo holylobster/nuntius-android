@@ -1,4 +1,4 @@
-Nuntius
+Nuntius [![Build Status](https://travis-ci.org/holylobster/nuntius-android.svg?branch=master)](https://travis-ci.org/holylobster/nuntius-android)
 ===================================
 
 ##Introduction
