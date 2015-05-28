@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <string name="bluetooth_not_available">El Bluetooth no está disponible en este dispositivo</string>
-    <string name="bluetooth_not_enabled">Nuntius requiere Bluetooth para activarse</string>
-    <string name="button_got_it">Vale</string>
-    <string name="dialog_ask_notification_access">Nuntius requiere el acceso a las notificaciones. Cuando se abran las preferencias de las notificationes, selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
-    <string name="enable_notification_toast_hint">Ahora selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
-    <string name="enable_nuntius">Activar Nuntius</string>
-    <string name="label_welcome_text">Nuntius te permite enviar las notificaciones a otros dispositivos. Comparte las notificaciones para Nuntius después de pulsar "Vale" y empareja el Bluetooth con el dispositivo específico.</string>
-    <string name="pref_license_title">Licencia</string>
-    <string name="not_paired">Empareja el dispositivo al ordenador</string>
-    <string name="notification_not_enabled">Nuntius requiere que el acceso a la notificación esté activado</string>
-    <string name="pref_min_notification_priority">Prioridad mínima de notifiación</string>
-    <string name="pref_min_notification_priority_summary">Establecer la prioridad mínima de notificación por la cual la aplicación enviará notificaciones</string>
+  <string name="dialog_ask_notification_access">Nuntius requiere el acceso a las notificaciones. Cuando se abran las preferencias de las notificationes, selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
+  <string name="button_got_it">Vale</string>
+  <string name="label_welcome_text">Nuntius te permite enviar las notificaciones a otros dispositivos. Comparte las notificaciones para Nuntius después de pulsar \"Vale\" y empareja el Bluetooth con el dispositivo específico.</string>
+  <string name="enable_nuntius">Activar Nuntius</string>
+  <string name="bluetooth_not_available">El Bluetooth no está disponible en este dispositivo</string>
+  <string name="bluetooth_not_enabled">Nuntius requiere Bluetooth para activarse</string>
+  <string name="enable_notification_toast_hint">Ahora selecciona Nuntius y confirma. Después pulsa el botón para volver.</string>
+  <string name="pref_license_title">Licencia</string>
+  <string name="pref_min_notification_priority">Prioridad mínima de notifiación</string>
+  <string name="pref_min_notification_priority_summary">Establecer la prioridad mínima de notificación por la cual la aplicación enviará notificaciones</string>
+  <string name="notification_not_enabled">Nuntius requiere que el acceso a la notificación esté activado</string>
+  <string name="not_paired">Empareja el dispositivo al ordenador</string>
 </resources>
