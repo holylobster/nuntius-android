@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -40,13 +41,17 @@ import android.widget.Toast;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import org.holylobster.nuntius.BuildConfig;
+import org.apache.http.conn.util.InetAddressUtils;
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
 import org.holylobster.nuntius.utils.PairingData;
 import org.holylobster.nuntius.utils.SslUtils;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 
 public class SettingsActivity extends ActionBarActivity {
@@ -102,8 +107,15 @@ public class SettingsActivity extends ActionBarActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            Preference myPref = (Preference) findPreference("qrcode");
-            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            Preference qrcode = findPreference("qrcode");
+            Preference ip = findPreference("ip");
+            PreferenceScreen screen = getPreferenceScreen();
+            if (Server.BLUETOOTH_ENABLED){
+                screen.removePreference(ip);
+            }else{
+                ip.setSummary(getLocalIpAddress());
+            }
+            qrcode.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     IntentIntegrator integrator = new IntentIntegrator(getActivity());
                     integrator.initiateScan();
@@ -141,6 +153,23 @@ public class SettingsActivity extends ActionBarActivity {
                     updatePreference(preference);
                 }
             }
+        }
+
+        public String getLocalIpAddress() {
+            try {
+                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                    NetworkInterface intf = en.nextElement();
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress())) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Log.e("IP Address", ex.toString());
+            }
+            return null;
         }
 
         private void updatePreference(Preference preference) {

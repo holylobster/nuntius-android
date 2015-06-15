@@ -56,6 +56,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private static final String TAG = Server.class.getSimpleName();
 
+    public static final boolean BLUETOOTH_ENABLED = false;
+
     private boolean ssl = true;
 
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
@@ -236,8 +238,11 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     void startAll() {
-        startBluetooth();
-        startNetwork();
+        if (BLUETOOTH_ENABLED) {
+            startBluetooth();
+        } else {
+            startNetwork();
+        }
     }
 
     private void startBluetooth() {
