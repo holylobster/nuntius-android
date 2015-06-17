@@ -224,7 +224,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private void startThread() {
-        if (BLUETOOTH_ENABLED){
+        if (BLUETOOTH_ENABLED) {
             if (bluetoothEnabled()) {
                 bluetoothConnectionProvider = new BluetoothConnectionProvider(this);
                 bluetoothConnectionProvider.start();
