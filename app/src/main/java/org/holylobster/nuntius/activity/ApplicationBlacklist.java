@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
@@ -67,7 +68,7 @@ public class ApplicationBlacklist extends ActionBarActivity {
         pm = getPackageManager();
 
         blacklistedApp = new BlacklistedApp(this); // init the class with this context.
-        adapter = new AppBlacklistAdapter(this, blacklistedApp.getBlacklistedAppList());
+        adapter = new AppBlacklistAdapter(this, blacklistedApp.getBlacklistedAppList(), true);
 
         recyclerView.setAdapter(adapter);
         adapter.SetOnItemClickListener(new AppBlacklistAdapter.OnItemClickListener() {
@@ -121,23 +122,9 @@ public class ApplicationBlacklist extends ActionBarActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.blacklist_add, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.add:
-                Intent intent = new Intent(this, AddApplicationBlacklist.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    public void onFabClick(View v){
+        Intent intent = new Intent(this, AddApplicationBlacklist.class);
+        startActivity(intent);
     }
 
 

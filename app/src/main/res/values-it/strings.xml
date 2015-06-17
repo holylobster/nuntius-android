@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <string name="bluetooth_not_available">Bluetooth non disponibile su questo dispositivo</string>
-    <string name="bluetooth_not_enabled">Nuntius richiede di abilitare il Bluetooth</string>
-    <string name="button_got_it">Ok</string>
-    <string name="dialog_ask_notification_access">Nuntius deve aver accesso alle notifiche. Quando la configurazione delle notifiche si apre, seleziona Nuntius e conferma. Poi premi il bottone indetro.</string>
-    <string name="enable_notification_toast_hint">Ora seleziona Nuntius e conferma. Poi premi il bottone indietro.</string>
-    <string name="enable_nuntius">Attiva Nuntius</string>
-    <string name="label_welcome_text">Nuntius ti permette di ricevere su altri dispositivi le notifiche. Abilita la condivisione delle notifiche per Nuntius dopo aver premuto "Ok" e accoppia con il dispositivo che ti interessa. </string>
-    <string name="pref_license_title">Licenza</string>
-    <string name="not_paired">Accoppia il tuo dispositivo con un computer</string>
-    <string name="notification_not_enabled">Nuntius richiede che l\'accesso alle notifiche sia abilitato</string>
-    <plurals name="running_with_x_connections">
-        <item quantity="one">Attivo con %1$d connessione.</item>
-        <item quantity="other">Attivo con %1$d connessioni.</item>
-    </plurals>
-    <string name="pref_min_notification_priority">Priorità minima notifiche</string>
-    <string name="pref_min_notification_priority_summary">Invia solo notifiche con priorità uguale o superiore</string>
-    <string name="removed_from_blacklist">%s rimossa dalla blacklist</string>
-    <string name="undo">Annulla</string>
-    <string name="version">Versione Nuntius</string>
-    <string name="blacklisted_title">Applicationi in Blacklist</string>
-    <string name="blacklist_title">Aggiungi alla Blacklist</string>
-    <string name="app_blacklist_title">Applicationi in Blacklist</string>
-    <string name="app_blacklist_summary">Ignora notifiche dalle applicazioni selezionate</string>
-    <string name="added_to_blacklist">%s è in blacklist</string>
+  <string name="dialog_ask_notification_access">Nuntius deve aver accesso alle notifiche. Quando la configurazione delle notifiche si apre, seleziona Nuntius e conferma. Poi premi il bottone indetro.</string>
+  <string name="button_got_it">Ok</string>
+  <string name="label_welcome_text">Nuntius ti permette di ricevere su altri dispositivi le notifiche. Abilita la condivisione delle notifiche per Nuntius dopo aver premuto \"Ok\" e accoppia con il dispositivo che ti interessa. </string>
+  <string name="enable_nuntius">Attiva Nuntius</string>
+  <string name="bluetooth_not_available">Bluetooth non disponibile su questo dispositivo</string>
+  <string name="bluetooth_not_enabled">Nuntius richiede di abilitare il Bluetooth</string>
+  <string name="enable_notification_toast_hint">Ora seleziona Nuntius e conferma. Poi premi il bottone indietro.</string>
+  <string name="pref_license_title">Licenza</string>
+  <string name="pref_min_notification_priority">Priorità minima notifiche</string>
+  <string name="pref_min_notification_priority_summary">Invia solo notifiche con priorità uguale o superiore</string>
+  <plurals name="running_with_x_connections">
+    <item quantity="one">Attivo con %1$d connessione.</item>
+    <item quantity="other">Attivo con %1$d connessioni.</item>
+  </plurals>
+  <string name="notification_not_enabled">Nuntius richiede che l\'accesso alle notifiche sia abilitato</string>
+  <string name="not_paired">Accoppia il tuo dispositivo con un computer</string>
+  <string name="version">Versione Nuntius</string>
+  <string name="app_blacklist_title">Applicationi in Blacklist</string>
+  <string name="app_blacklist_summary">Ignora notifiche dalle applicazioni selezionate</string>
+  <string name="blacklisted_title">Applicationi in Blacklist</string>
+  <string name="blacklist_title">Aggiungi alla Blacklist</string>
+  <string name="added_to_blacklist">%s è in blacklist</string>
+  <string name="removed_from_blacklist">%s rimossa dalla blacklist</string>
+  <string name="undo">Annulla</string>
 </resources>

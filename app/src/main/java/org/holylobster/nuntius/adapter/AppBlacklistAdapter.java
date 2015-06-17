@@ -36,6 +36,7 @@ import java.util.List;
 public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapter.ViewHolder> {
     private ArrayList<ApplicationInfo> appInfos;
     private PackageManager pm;
+    private boolean deleteButton;
 
     public OnItemClickListener itemClickListener;
 
@@ -47,9 +48,10 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
         this.itemClickListener = itemClickListener;
     }
 
-    public AppBlacklistAdapter(Context c, List<ApplicationInfo> packages) {
+    public AppBlacklistAdapter(Context c, List<ApplicationInfo> packages, boolean deleteButton) {
         this.pm = c.getPackageManager();
         this.appInfos = new ArrayList<>(packages);
+        this.deleteButton = deleteButton;
     }
 
     public void refresh(List<ApplicationInfo> packages){
@@ -74,6 +76,11 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.textView.setText(pm.getApplicationLabel(appInfos.get(position)));
         holder.imageView.setImageDrawable(pm.getApplicationIcon(appInfos.get(position)));
+        if (deleteButton) {
+            holder.deleteButtonView.setVisibility(View.VISIBLE);
+        }else{
+            holder.deleteButtonView.setVisibility(View.GONE);
+        }
 
     }
 
@@ -91,12 +98,19 @@ public class AppBlacklistAdapter extends RecyclerView.Adapter<AppBlacklistAdapte
         // each data item is just a string in this case
         public TextView textView;
         public ImageView imageView;
+        private ViewGroup deleteButtonView;
 
         public ViewHolder(View v) {
             super(v);
             textView = (TextView) itemView.findViewById(R.id.title);
             imageView = (ImageView) itemView.findViewById(R.id.icon);
-            v.setOnClickListener(this);
+            deleteButtonView = (ViewGroup) itemView.findViewById(R.id.deleteButton);
+            if (deleteButton){
+                deleteButtonView.setOnClickListener(this);
+            } else {
+                v.setOnClickListener(this);
+            }
+
         }
 
         @Override
