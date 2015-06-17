@@ -46,10 +46,9 @@
     </Preference>
 
     <Preference
-        android:key="qrcode"
-        android:title="QRCode"
-        android:summary="">
-    </Preference>
+            android:key="ip"
+            android:title="@string/ip"
+            android:visibility="gone" />
 
     <Preference
         android:key="version"
