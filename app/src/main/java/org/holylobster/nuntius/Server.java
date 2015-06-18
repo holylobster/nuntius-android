@@ -58,6 +58,8 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private static final String TAG = Server.class.getSimpleName();
 
+    public static final boolean BLUETOOTH_ENABLED = false;
+
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
 
     private BluetoothConnectionProvider bluetoothConnectionProvider;
@@ -222,17 +224,42 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     private void startThread() {
-        if (bluetoothEnabled()) {
-            bluetoothConnectionProvider = new BluetoothConnectionProvider(this);
-            bluetoothConnectionProvider.start();
-        }
-        else {
-            Log.i(TAG, "Bluetooth not available or enabled. Cannot start Bluetooth server");
+        if (BLUETOOTH_ENABLED) {
+            if (bluetoothEnabled()) {
+                bluetoothConnectionProvider = new BluetoothConnectionProvider(this);
+                bluetoothConnectionProvider.start();
+            }
+            else {
+                Log.i(TAG, "Bluetooth not available or enabled. Cannot start Bluetooth server");
+            }
+        } else {
+            if (networkAvailable()) {
+                networkConnectionProvider = new NetworkConnectionProvider(this);
+                networkConnectionProvider.start();
+            }
         }
 
-        if (networkAvailable()) {
-            networkConnectionProvider = new NetworkConnectionProvider(this);
-            networkConnectionProvider.start();
+        notifyListener(getStatusMessage());
+    }
+
+    private void stopThread() {
+        for (Connection connection : connections) {
+            connection.close();
+        }
+        connections.clear();
+        Log.i(TAG, "Stopping server thread.");
+        if (bluetoothConnectionProvider != null) {
+            bluetoothConnectionProvider.close();
+            Log.i(TAG, "Bluetooth Server thread stopped.");
+        } else {
+            Log.i(TAG, "Bluetooth Server thread already stopped.");
+        }
+
+        if (networkConnectionProvider != null) {
+            networkConnectionProvider.close();
+            Log.i(TAG, "Network Server thread stopped.");
+        } else {
+            Log.i(TAG, "Network Server thread already stopped.");
         }
 
         notifyListener(getStatusMessage());
@@ -272,30 +299,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
             }
         }
 
-    }
-
-    private void stopThread() {
-        Log.i(TAG, "Stopping server thread.");
-        if (bluetoothConnectionProvider != null) {
-            bluetoothConnectionProvider.close();
-            Log.i(TAG, "Bluetooth Server thread stopped.");
-        } else {
-            Log.i(TAG, "Bluetooth Server thread already stopped.");
-        }
-
-        if (networkConnectionProvider != null) {
-            networkConnectionProvider.close();
-            Log.i(TAG, "Network Server thread stopped.");
-        } else {
-            Log.i(TAG, "Network Server thread already stopped.");
-        }
-
-        for (Connection connection : connections) {
-            connection.close();
-        }
-        connections.clear();
-
-        notifyListener(getStatusMessage());
     }
 
     private void notifyListener(String status) {

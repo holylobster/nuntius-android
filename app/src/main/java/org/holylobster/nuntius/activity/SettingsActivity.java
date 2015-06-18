@@ -33,15 +33,22 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
+
+import org.apache.http.conn.util.InetAddressUtils;
 
 import org.holylobster.nuntius.BuildConfig;
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 
 public class SettingsActivity extends ActionBarActivity {
@@ -70,6 +77,14 @@ public class SettingsActivity extends ActionBarActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
+
+            Preference ip = findPreference("ip");
+            PreferenceScreen screen = getPreferenceScreen();
+            if (Server.BLUETOOTH_ENABLED) {
+                screen.removePreference(ip);
+            } else {
+                ip.setSummary(getLocalIpAddress());
+            }
         }
 
         @Override
@@ -100,6 +115,23 @@ public class SettingsActivity extends ActionBarActivity {
                     updatePreference(preference);
                 }
             }
+        }
+
+        public String getLocalIpAddress() {
+            try {
+                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                    NetworkInterface intf = en.nextElement();
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress())) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Log.e("IP Address", ex.toString());
+            }
+            return null;
         }
 
         private void updatePreference(Preference preference) {
