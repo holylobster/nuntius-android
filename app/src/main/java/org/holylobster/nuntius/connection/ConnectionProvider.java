@@ -15,20 +15,9 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.connection;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-public interface Socket {
-    OutputStream getOutputStream() throws IOException;
-
-    boolean isConnected();
-
-    InputStream getInputStream() throws IOException;
-
-    void close() throws IOException;
-
-    String getDestination();
+public interface ConnectionProvider {
+    void start();
+    boolean isAlive();
 }

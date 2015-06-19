@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.notifications;
+package org.holylobster.nuntius.connection;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -29,25 +29,39 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Telephony;
 import android.service.notification.StatusBarNotification;
 import android.util.Base64;
 import android.util.JsonWriter;
 import android.util.Log;
 
+import org.holylobster.nuntius.sms.SMessage;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 public class Message {
     // Used for logging
     private String TAG = this.getClass().getSimpleName();
 
     private String event;
+    private SendType type;
     private StatusBarNotification[] notifications;
+    private SMessage sMessage;
 
     public Message(String event, StatusBarNotification... notifications) {
         this.notifications = notifications;
         this.event = event;
+        this.type = SendType.NOTI;
+
+    }
+
+    public Message(SMessage sMessage){
+        this.sMessage = sMessage;
+        this.event = "sms";
+        this.type = SendType.SMS;
     }
 
     public String toJSON(Context context) {
@@ -60,8 +74,13 @@ public class Message {
 
             writer.name("eventItems");
             writer.beginArray();
-            for (StatusBarNotification sbn : notifications) {
-                toJSON(context, writer, sbn);
+
+            if (type == SendType.SMS) {
+                toJsonSMessage(context, writer, sMessage);
+            } else if (type == SendType.NOTI) {
+                for (StatusBarNotification sbn : notifications) {
+                    toJsonNotification(context, writer, sbn);
+                }
             }
             writer.endArray();
             writer.endObject();
@@ -72,7 +91,30 @@ public class Message {
         return out.toString();
     }
 
-    private void toJSON(Context context, JsonWriter writer, StatusBarNotification sbn) throws IOException {
+    private void toJsonSMessage(Context context, JsonWriter writer, SMessage sMessage) throws IOException {
+        writer.beginObject();
+        writer.name("id").value("0"); // test value
+        writer.name("sender").value(sMessage.getSender());
+        writer.name("sender_num").value(sMessage.getSenderNum());
+        writer.name("message").value(sMessage.getMessage());
+
+        if (context != null){
+            final PackageManager pm = context.getPackageManager();
+            try {
+                ApplicationInfo ai = pm.getApplicationInfo(Telephony.Sms.getDefaultSmsPackage(context), 0); // require api 19 min is actually 19.
+
+                Bitmap bitmap = toBitmap(pm.getApplicationIcon(ai));
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                writer.name("icon").value(new String(Base64.encode(stream.toByteArray(), Base64.DEFAULT), "UTF-8"));
+            } catch (final PackageManager.NameNotFoundException e) {
+                Log.d(TAG, "Could not get the icon and label for the default sms app");
+            }
+        }
+        writer.endObject();
+    }
+
+    private void toJsonNotification(Context context, JsonWriter writer, StatusBarNotification sbn) throws IOException {
         writer.beginObject();
 
         writer.name("id").value(sbn.getId());
@@ -188,9 +230,11 @@ public class Message {
         }
 
         if (notification.actions != null) {
+            Log.d(TAG, "writing action");
             writer.name("actions");
             writer.beginArray();
             for (Notification.Action a : notification.actions) {
+                Log.d(TAG, "writing action : " + a.title.toString());
                 writer.beginObject();
                 writer.name("title").value(a.title.toString());
                 writer.endObject();
@@ -213,5 +257,19 @@ public class Message {
             drawable.draw(canvas);
             return bitmap;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "TAG='" + TAG + '\'' +
+                ", event='" + event + '\'' +
+                ", notifications=" + Arrays.toString(notifications) +
+                ", sMessage=" + sMessage +
+                '}';
+    }
+
+    public enum SendType {
+        NOTI, SMS
     }
 }

@@ -19,7 +19,7 @@ package org.holylobster.nuntius.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 
-import org.holylobster.nuntius.Socket;
+import org.holylobster.nuntius.connection.Socket;
 
 import java.io.IOException;
 import java.io.InputStream;

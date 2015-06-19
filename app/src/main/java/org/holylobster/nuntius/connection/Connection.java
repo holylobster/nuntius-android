@@ -15,15 +15,12 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.connection;
 
 import android.content.Context;
 import android.util.Log;
 
-import org.holylobster.nuntius.Socket;
-import org.holylobster.nuntius.notifications.Handler;
-import org.holylobster.nuntius.notifications.IncomingMessage;
-import org.holylobster.nuntius.notifications.Message;
+import org.holylobster.nuntius.notifications.NotiHandler;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -45,12 +42,12 @@ public class Connection extends Thread {
     private final Thread receiverThread;
     private final Socket socket;
 
-    private final Handler handler;
+    private final NotiHandler handler;
     private final String destination;
 
     boolean gracefulClose = false;
 
-    public Connection(final Context context, final Socket socket, final Handler handler) {
+    public Connection(final Context context, final Socket socket, final NotiHandler handler) {
         this.socket = socket;
         this.handler = handler;
         this.destination = socket.getDestination();
@@ -62,7 +59,7 @@ public class Connection extends Thread {
                     while (checkConnected(socket) && !gracefulClose) {
                         Message message = queue.take();
                         String json = message.toJSON(context);
-                        Log.i(TAG, "Sending message over Bluetooth (size " + json.length() + ")");
+                        Log.i(TAG, "Sending message (size " + json.length() + ")");
                         outputStream.write(json.getBytes());
                         outputStream.write('\r');
                         outputStream.write('\n');
@@ -94,6 +91,7 @@ public class Connection extends Thread {
                         if (c == '\n') {
                             String data = new String(baos.toByteArray(), Charset.forName("UTF-8"));
                             Log.i(TAG, "Read " + data.length() + " chars");
+                            Log.d(TAG, "Read : " + data);
                             try {
                                 IncomingMessage message = new IncomingMessage(data);
                                 handler.onMessageReceived(message);
@@ -140,7 +138,7 @@ public class Connection extends Thread {
 
             try {
                 socket.close();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Log.e(TAG, "Error closing socket", e);
             }
         }

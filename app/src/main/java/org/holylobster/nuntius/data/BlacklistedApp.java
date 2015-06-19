@@ -52,7 +52,7 @@ public class BlacklistedApp {
             try {
                 blacklistedAppList.add(pm.getApplicationInfo(packageName, 0));
             } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Error retrieving application info", e);
+                Log.e(TAG, "Error retrieving application info\n", e);
             }
         }
         Collections.sort(blacklistedAppList, new ApplicationInfo.DisplayNameComparator(pm));
@@ -65,6 +65,14 @@ public class BlacklistedApp {
     public void add(ApplicationInfo app) {
         blacklistedAppList.add(app);
         sortAndPush();
+    }
+
+    public void add(String s){
+        try {
+            this.add(pm.getApplicationInfo(s, 0));
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Incorrect android app\n", e);
+        }
     }
 
     public void remove(int i) {

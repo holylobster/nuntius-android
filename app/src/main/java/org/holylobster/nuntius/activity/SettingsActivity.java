@@ -43,7 +43,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import org.holylobster.nuntius.R;
-import org.holylobster.nuntius.Server;
+import org.holylobster.nuntius.connection.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
 import org.holylobster.nuntius.utils.PairingData;

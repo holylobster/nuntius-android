@@ -19,9 +19,9 @@ package org.holylobster.nuntius.network;
 
 import android.util.Log;
 
-import org.holylobster.nuntius.ConnectionManager;
-import org.holylobster.nuntius.ConnectionProvider;
-import org.holylobster.nuntius.Socket;
+import org.holylobster.nuntius.connection.ConnectionManager;
+import org.holylobster.nuntius.connection.ConnectionProvider;
+import org.holylobster.nuntius.connection.Socket;
 
 import java.io.IOException;
 import java.net.ServerSocket;

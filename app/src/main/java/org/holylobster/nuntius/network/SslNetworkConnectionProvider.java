@@ -17,7 +17,7 @@
 
 package org.holylobster.nuntius.network;
 
-import org.holylobster.nuntius.ConnectionManager;
+import org.holylobster.nuntius.connection.ConnectionManager;
 import org.holylobster.nuntius.utils.SslUtils;
 
 import java.io.File;

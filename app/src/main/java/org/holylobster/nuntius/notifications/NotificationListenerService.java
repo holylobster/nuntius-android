@@ -22,7 +22,7 @@ import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import org.holylobster.nuntius.Server;
+import org.holylobster.nuntius.connection.Server;
 
 public class NotificationListenerService extends android.service.notification.NotificationListenerService {
 

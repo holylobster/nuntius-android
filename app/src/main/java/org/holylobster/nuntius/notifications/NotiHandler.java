@@ -15,9 +15,13 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.notifications;
 
-public interface ConnectionProvider {
-    void start();
-    boolean isAlive();
+import org.holylobster.nuntius.connection.IncomingMessage;
+import org.holylobster.nuntius.connection.Connection;
+
+
+public interface NotiHandler {
+    void onMessageReceived(IncomingMessage message);
+    void onConnectionClosed(Connection connection);
 }
