@@ -39,12 +39,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.apache.http.conn.util.InetAddressUtils;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.holylobster.nuntius.BuildConfig;
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
+import org.holylobster.nuntius.utils.PairingData;
+import org.holylobster.nuntius.utils.SslUtils;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -55,10 +59,20 @@ public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
+    private static Context context;
+
+    private static PairingData currentPairingData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        try {
+            SslUtils.generateSelfSignedCertificate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
@@ -68,6 +82,24 @@ public class SettingsActivity extends ActionBarActivity {
                 .beginTransaction()
                 .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            String contents = scanResult.getContents();
+            if (contents != null) {
+                Log.i(TAG, "" + contents);
+                currentPairingData = new PairingData(contents);
+            }
+        }
+    }
+
+    public static PairingData getCurrentPairingData() {
+        PairingData p = currentPairingData;
+        currentPairingData = null;
+        return p;
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -85,6 +117,14 @@ public class SettingsActivity extends ActionBarActivity {
             } else {
                 ip.setSummary(getLocalIpAddress());
             }
+            Preference myPref = (Preference) findPreference("qrcode");
+            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                    integrator.initiateScan();
+                    return true;
+                }
+            });
         }
 
         @Override
