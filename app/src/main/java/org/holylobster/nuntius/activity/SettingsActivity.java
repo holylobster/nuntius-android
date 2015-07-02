@@ -33,25 +33,47 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
+import android.preference.PreferenceScreen;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.holylobster.nuntius.BuildConfig;
+import org.apache.http.conn.util.InetAddressUtils;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
 import org.holylobster.nuntius.R;
 import org.holylobster.nuntius.Server;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
+import org.holylobster.nuntius.utils.PairingData;
+import org.holylobster.nuntius.utils.SslUtils;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 
 public class SettingsActivity extends ActionBarActivity {
 
     private static final String TAG = SettingsActivity.class.getSimpleName();
 
+    private static Context context;
+
+    private static PairingData currentPairingData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        try {
+            SslUtils.generateSelfSignedCertificate();
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to secure network connection. Certificate creation failed", e) ;
+            Toast.makeText(context, "Unable to secure network connection. Certificate creation failed", Toast.LENGTH_SHORT).show();
+            throw new RuntimeException();
+        }
 
         android.support.v7.widget.Toolbar toolbar = (android.support.v7.widget.Toolbar) findViewById(R.id.settingstoolbar);
         setSupportActionBar(toolbar);
@@ -61,6 +83,24 @@ public class SettingsActivity extends ActionBarActivity {
                 .beginTransaction()
                 .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            String contents = scanResult.getContents();
+            if (contents != null) {
+                Log.i(TAG, "" + contents);
+                currentPairingData = new PairingData(contents);
+            }
+        }
+    }
+
+    public static PairingData getCurrentPairingData() {
+        PairingData p = currentPairingData;
+        currentPairingData = null;
+        return p;
     }
 
     public static class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -70,6 +110,22 @@ public class SettingsActivity extends ActionBarActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
+
+            Preference ip = findPreference("ip");
+            PreferenceScreen screen = getPreferenceScreen();
+            if (Server.BLUETOOTH_ENABLED) {
+                screen.removePreference(ip);
+            } else {
+                ip.setSummary(getLocalIpAddress());
+            }
+            Preference myPref = (Preference) findPreference("qrcode");
+            myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(Preference preference) {
+                    IntentIntegrator integrator = new IntentIntegrator(getActivity());
+                    integrator.initiateScan();
+                    return true;
+                }
+            });
         }
 
         @Override
@@ -100,6 +156,23 @@ public class SettingsActivity extends ActionBarActivity {
                     updatePreference(preference);
                 }
             }
+        }
+
+        public String getLocalIpAddress() {
+            try {
+                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                    NetworkInterface intf = en.nextElement();
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                        InetAddress inetAddress = enumIpAddr.nextElement();
+                        if (!inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress())) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Log.e("IP Address", ex.toString());
+            }
+            return null;
         }
 
         private void updatePreference(Preference preference) {
@@ -142,6 +215,9 @@ public class SettingsActivity extends ActionBarActivity {
                     case "pair":
                         summary = getString(R.string.not_paired);
                         break;
+                    case "relaunch":
+                        summary = getString(R.string.relaunch_server);
+                        break;
                     default:
                         summary = "...";
                         break;
@@ -166,13 +242,15 @@ public class SettingsActivity extends ActionBarActivity {
             updatePreference(preference);
             if (preference.getKey().equals("main_enable_switch")) {
                 if (preference.getSharedPreferences().getBoolean("main_enable_switch", true)) {
-                    if (!Server.bluetoothAvailable()) {
-                        Toast.makeText(getActivity(), getString(R.string.bluetooth_not_available), Toast.LENGTH_LONG).show();
-                    }
-                    else if (!Server.bluetoothEnabled()) {
-                        if (!requestEnableBluetooth()) {
-                            Toast.makeText(getActivity(), getString(R.string.bluetooth_not_enabled), Toast.LENGTH_LONG).show();
-                            return;
+                    if (Server.BLUETOOTH_ENABLED) {
+                        if (!Server.bluetoothAvailable()) {
+                            Toast.makeText(getActivity(), getString(R.string.bluetooth_not_available), Toast.LENGTH_LONG).show();
+                        }
+                        else if (!Server.bluetoothEnabled()) {
+                            if (!requestEnableBluetooth()) {
+                                Toast.makeText(getActivity(), getString(R.string.bluetooth_not_enabled), Toast.LENGTH_LONG).show();
+                                return;
+                            }
                         }
                     }
 

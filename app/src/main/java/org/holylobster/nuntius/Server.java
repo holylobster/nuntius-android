@@ -21,45 +21,48 @@ import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothServerSocket;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import org.holylobster.nuntius.bluetooth.BluetoothSocketAdapter;
-import org.holylobster.nuntius.bluetooth.Connection;
+import org.holylobster.nuntius.bluetooth.BluetoothConnectionProvider;
+import org.holylobster.nuntius.network.NetworkConnectionProvider;
+import org.holylobster.nuntius.network.SslNetworkConnectionProvider;
 import org.holylobster.nuntius.notifications.Handler;
 import org.holylobster.nuntius.notifications.IncomingMessage;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
 import org.holylobster.nuntius.notifications.Message;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
-import org.holylobster.nuntius.data.BlacklistedApp;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener {
-
-    public static final String PROTOCOL_SCHEME_RFCOMM = "btspp";
+public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener, ConnectionManager {
 
     private static final String TAG = Server.class.getSimpleName();
 
-    private static final UUID uuidSpp = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    public static final boolean BLUETOOTH_ENABLED = false;
 
-    private final List<Connection> connections = new ArrayList<>();
-    private Thread acceptThread;
-    private BluetoothServerSocket serverSocket;
+    private boolean ssl = true;
+
+    private final List<Connection> connections = new CopyOnWriteArrayList<>();
+
+    private BluetoothConnectionProvider bluetoothConnectionProvider;
+    private NetworkConnectionProvider networkConnectionProvider;
 
     private Set<String> blacklistedApp;
 
@@ -73,12 +76,17 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         blacklistedApp = defaultSharedPreferences.getStringSet("BlackList", new HashSet<String>());
     }
 
+    public static Boolean bluetoothAvailable = null;
+
     public static boolean bluetoothEnabled() {
-        return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
+        return bluetoothAvailable() && BluetoothAdapter.getDefaultAdapter().isEnabled();
     }
 
     public static boolean bluetoothAvailable() {
-        return BluetoothAdapter.getDefaultAdapter() != null;
+        if (bluetoothAvailable == null) {
+            bluetoothAvailable = BluetoothAdapter.getDefaultAdapter() != null;
+        }
+        return bluetoothAvailable;
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -98,12 +106,12 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         Log.d("blacklist", " " + blacklistedApp);
         return
                 notification != null
-                // Filter low priority notifications
-                && notification.priority >= minNotificationPriority
-                // Notification flags
-                && !isOngoing(notification)
-                && !isLocalOnly(notification)
-                && !isBlacklisted(sbn);
+                        // Filter low priority notifications
+                        && notification.priority >= minNotificationPriority
+                        // Notification flags
+                        && !isOngoing(notification)
+                        && !isLocalOnly(notification)
+                        && !isBlacklisted(sbn);
     }
 
     private boolean isBlacklisted(StatusBarNotification sbn) {
@@ -147,7 +155,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         boolean mustRun = defaultSharedPreferences.getBoolean("main_enable_switch", true);
 
         if (mustRun) {
-            startThread();
+            startAll();
         }
     }
 
@@ -158,21 +166,41 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
         PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this);
 
-        stopThread();
+        stopAll();
+    }
+
+    void stopAll() {
+        stopBluetooth();
+        stopNetwork();
+        for (Connection connection : connections) {
+            connection.close();
+        }
+        connections.clear();
     }
 
     public String getStatusMessage() {
-        if (bluetoothEnabled() && getNumberOfConnections() == 0 ) {
-            return "pair";
-        } else if (acceptThread != null && acceptThread.isAlive()) {
-            return  "connection";
-        } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
-            return "notification";
-        } else if (!bluetoothEnabled()) {
-            return "bluetooth";
+        if (BLUETOOTH_ENABLED) {
+            if (bluetoothEnabled() && getNumberOfConnections() == 0 ) {
+                return "pair";
+            } else if (bluetoothConnectionProvider != null && bluetoothConnectionProvider.isAlive()) {
+                return  "connection";
+            } else if (!NotificationListenerService.isNotificationAccessEnabled()) {
+                return "notification";
+            } else if (!bluetoothEnabled()) {
+                return "bluetooth";
+            } else {
+                return "...";
+            }
         } else {
-            return "...";
+            if (networkConnectionProvider != null && networkConnectionProvider.isAlive() && getNumberOfConnections() == 0) {
+                return "pair";
+            } else if (networkConnectionProvider != null && networkConnectionProvider.isAlive()) {
+                return "connection";
+            } else {
+                return "relaunch";
+            }
         }
+
     }
 
     public int getNumberOfConnections() {
@@ -189,10 +217,10 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 case BluetoothAdapter.STATE_OFF:
                 case BluetoothAdapter.STATE_TURNING_OFF:
                 case BluetoothAdapter.STATE_TURNING_ON:
-                    stopThread();
+                    stopBluetooth();
                     break;
                 case BluetoothAdapter.STATE_ON:
-                    startThread();
+                    startBluetooth();
                     break;
             }
         }
@@ -204,9 +232,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         switch (key) {
             case "main_enable_switch":
                 if (sharedPreferences.getBoolean("main_enable_switch", true)) {
-                    startThread();
+                    startAll();
                 } else {
-                    stopThread();
+                    stopAll();
                 }
                 break;
             case "pref_min_notification_priority":
@@ -219,60 +247,50 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         }
     }
 
-    private void startThread() {
-        if (!bluetoothEnabled()) {
-            Log.i(TAG, "Bluetooth not available or enabled. Cannot start server thread.");
-            return;
+    void startAll() {
+        if (BLUETOOTH_ENABLED) {
+            startBluetooth();
+        } else {
+            startNetwork();
         }
+    }
 
+    private void startBluetooth() {
+        if (bluetoothEnabled()) {
+            bluetoothConnectionProvider = new BluetoothConnectionProvider(this);
+            bluetoothConnectionProvider.start();
+        } else {
+            Log.i(TAG, "Bluetooth not available or enabled. Cannot start Bluetooth server");
+        }
         notifyListener(getStatusMessage());
+    }
 
-        acceptThread = new Thread() {
-            public void run() {
-                Log.i(TAG, "Listen server started");
-
-                BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                try {
-                    serverSocket = btAdapter.listenUsingInsecureRfcommWithServiceRecord(PROTOCOL_SCHEME_RFCOMM, uuidSpp);
-                    Log.d(TAG, "Server socket created");
-
-                    while (serverSocket != null && btAdapter.isEnabled()) {
-                        try {
-                            BluetoothSocket bluetoothSocket = serverSocket.accept();
-                            Socket socket = new BluetoothSocketAdapter(bluetoothSocket);
-                            Log.i(TAG, ">>Connection opened (" + socket.getDestination() + ")");
-                            connections.add(new Connection(context, socket, new Handler() {
-                                @Override
-                                public void onMessageReceived(IncomingMessage message) {
-                                    Log.d(TAG, "Message received: " + message);
-                                    manageNotificationActions(message);
-                                }
-
-                                @Override
-                                public void onConnectionClosed(Connection connection) {
-                                    connections.remove(connection);
-                                    Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
-                                    notifyListener(getStatusMessage());
-                                }
-                            }));
-                            notifyListener(getStatusMessage());
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error during accept", e);
-                            Log.i(TAG, "Waiting 5 seconds before accepting again...");
-                            try {
-                                Thread.sleep(5000);
-                            } catch (InterruptedException e1) {
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "Error in listenUsingRfcommWithServiceRecord", e);
+    private void startNetwork() {
+        if (networkAvailable()) {
+            try {
+                if (ssl) {
+                    networkConnectionProvider = new SslNetworkConnectionProvider(this, new File(context.getFilesDir(), "custom.bks"));
+                } else {
+                    networkConnectionProvider = new NetworkConnectionProvider(this);
                 }
-                Log.i(TAG, "Listen server stopped");
+                networkConnectionProvider.start();
+            } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+                Log.e(TAG, "Error creating SSL server", e);
             }
-        };
-        acceptThread.start();
+        }
+        notifyListener(getStatusMessage());
+    }
+
+    private boolean networkAvailable() {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        //NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        //return mWifi.isConnected();
+
+        if (connManager.getActiveNetworkInfo() != null && connManager.getActiveNetworkInfo().isAvailable() && connManager.getActiveNetworkInfo().isConnected()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -301,33 +319,28 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 }
             }
         }
-
     }
 
-    private void stopThread() {
+    private void stopBluetooth() {
         Log.i(TAG, "Stopping server thread.");
-        if (acceptThread != null) {
-            acceptThread.interrupt();
-            for (Connection connection : connections) {
-                connection.close();
-            }
-            connections.clear();
-            Log.i(TAG, "Server thread stopped.");
+        if (bluetoothConnectionProvider != null) {
+            bluetoothConnectionProvider.close();
+            Log.i(TAG, "Bluetooth Server thread stopped.");
         } else {
-            Log.i(TAG, "Server thread already stopped.");
+            Log.i(TAG, "Bluetooth Server thread already stopped.");
         }
 
-        if (serverSocket != null) {
-            Log.i(TAG, "Closing server listening socket...");
-            try {
-                serverSocket.close();
-                Log.i(TAG, "Server listening socket closed.");
-            } catch (IOException e) {
-                Log.e(TAG, "Unable to close server socket", e);
-            } finally {
-                serverSocket = null;
-            }
+        notifyListener(getStatusMessage());
+    }
+
+    private void stopNetwork() {
+        if (networkConnectionProvider != null) {
+            networkConnectionProvider.close();
+            Log.i(TAG, "Network Server thread stopped.");
+        } else {
+            Log.i(TAG, "Network Server thread already stopped.");
         }
+
         notifyListener(getStatusMessage());
     }
 
@@ -338,4 +351,21 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         context.sendBroadcast(intent);
     }
 
+    public void newConnection(Socket socket) {
+        connections.add(new Connection(context, socket, new Handler() {
+            @Override
+            public void onMessageReceived(IncomingMessage message) {
+                Log.d(TAG, "Message received: " + message);
+                manageNotificationActions(message);
+            }
+
+            @Override
+            public void onConnectionClosed(Connection connection) {
+                connections.remove(connection);
+                Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
+                notifyListener(getStatusMessage());
+            }
+        }));
+        notifyListener(getStatusMessage());
+    }
 }

@@ -25,5 +25,7 @@
     <string name="added_to_blacklist">%s blacklisted</string>
     <string name="removed_from_blacklist">%s removed from blacklist</string>
     <string name="undo">Undo</string>
+    <string name="ip">My IP</string>
+    <string name="relaunch_server">Please enable the switch to relaunch the server.</string>
 
 </resources>

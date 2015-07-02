@@ -15,7 +15,7 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.bluetooth;
+package org.holylobster.nuntius;
 
 import android.content.Context;
 import android.util.Log;
@@ -61,8 +61,9 @@ public class Connection extends Thread {
                     OutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
                     while (checkConnected(socket) && !gracefulClose) {
                         Message message = queue.take();
-                        Log.i(TAG, "Sending message over Bluetooth");
-                        outputStream.write(message.toJSON(context).getBytes());
+                        String json = message.toJSON(context);
+                        Log.i(TAG, "Sending message over Bluetooth (size " + json.length() + ")");
+                        outputStream.write(json.getBytes());
                         outputStream.write('\r');
                         outputStream.write('\n');
                         outputStream.flush();
@@ -139,7 +140,7 @@ public class Connection extends Thread {
 
             try {
                 socket.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Error closing socket", e);
             }
         }
