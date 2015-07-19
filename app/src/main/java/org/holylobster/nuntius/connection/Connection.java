@@ -32,6 +32,8 @@ import java.nio.charset.Charset;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import javax.net.ssl.SSLHandshakeException;
+
 public class Connection extends Thread {
     // Used for logging
     private final String TAG = this.getClass().getSimpleName();
@@ -65,6 +67,8 @@ public class Connection extends Thread {
                         outputStream.write('\n');
                         outputStream.flush();
                     }
+                } catch (SSLHandshakeException e) {
+                    Log.e(TAG, "Cert not trusted", e);
                 } catch (InterruptedException e) {
                     Log.i(TAG, "Sender thread interrupted while waiting for a message");
                 } catch (IOException e) {
@@ -85,7 +89,8 @@ public class Connection extends Thread {
                     while (checkConnected(socket) && !gracefulClose) {
                         int c;
                         if ((c = inputStream.read()) == -1) {
-                            throw new IOException("End of input stream reached");
+                            Log.d(TAG, "End of input stream reached");
+                            close();
                         }
                         baos.write((byte) c);
                         if (c == '\n') {
@@ -167,7 +172,12 @@ public class Connection extends Thread {
         if (receiverThread.isAlive()) {
             receiverThread.interrupt();
         }
-        cleanup(socket);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                cleanup(socket);
+            }
+        }).start();
     }
 
     public String getDestination() {

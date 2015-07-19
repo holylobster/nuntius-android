@@ -17,6 +17,9 @@
 
 package org.holylobster.nuntius.network;
 
+import android.content.Context;
+import android.net.nsd.NsdManager;
+import android.net.nsd.NsdServiceInfo;
 import android.util.Log;
 
 import org.holylobster.nuntius.connection.ConnectionManager;
@@ -32,11 +35,15 @@ public class NetworkConnectionProvider implements ConnectionProvider {
 
     private final ConnectionManager connectionManager;
 
-    final int port = 12233;
-
     private ServerSocket serverSocket;
 
     private final Thread thread;
+
+    private NsdManager.RegistrationListener registrationListener;
+
+    public int port = 12233;
+
+    NsdManager nsdManager;
 
     public NetworkConnectionProvider(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
@@ -46,6 +53,7 @@ public class NetworkConnectionProvider implements ConnectionProvider {
 
                 try {
                     serverSocket = getServerSocket();
+                    port = serverSocket.getLocalPort();
 
                     Log.d(TAG, "Server socket created " + serverSocket.getLocalSocketAddress() + ", bound: " + serverSocket.isBound());
 
@@ -70,6 +78,57 @@ public class NetworkConnectionProvider implements ConnectionProvider {
                 Log.i(TAG, "Listen server stopped");
             }
         };
+    }
+
+    public void initializeRegistrationListener() {
+         registrationListener = new NsdManager.RegistrationListener() {
+
+            @Override
+            public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
+                // Save the service name.  Android may have changed it in order to
+                // resolve a conflict, so update the name you initially requested
+                // with the name Android actually used.
+                Log.d(TAG, "registered : " + NsdServiceInfo.toString());
+            }
+
+            @Override
+            public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                Log.d(TAG, "Failed registration :" + errorCode);
+            }
+
+            @Override
+            public void onServiceUnregistered(NsdServiceInfo arg0) {
+                // Service has been unregistered.  This only happens when you call
+                // NsdManager.unregisterService() and pass in this listener.
+            }
+
+            @Override
+            public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+                // Unregistration failed.  Put debugging code here to determine why.
+            }
+         };
+    }
+
+    public void registerService(Context context) {
+        // Create the NsdServiceInfo object, and populate it.
+        NsdServiceInfo serviceInfo  = new NsdServiceInfo();
+
+        // The name is subject to change based on conflicts
+        // with other services advertised on the same network.
+        serviceInfo.setServiceName("NuntiusAndroid");
+        serviceInfo.setServiceType("_nuntius._tcp.");
+        serviceInfo.setPort(port);
+        Log.d(TAG, port + "");
+
+        nsdManager = (NsdManager) context.getSystemService(Context.NSD_SERVICE);
+        Log.d(TAG, "register : " + serviceInfo.toString());
+        nsdManager.registerService(
+                serviceInfo, NsdManager.PROTOCOL_DNS_SD, registrationListener);
+
+    }
+
+    public void unregisterService() {
+        nsdManager.unregisterService(registrationListener);
     }
 
     ServerSocket getServerSocket() throws Exception {
