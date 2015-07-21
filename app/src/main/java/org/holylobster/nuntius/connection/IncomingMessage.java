@@ -15,44 +15,43 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius.notifications;
+package org.holylobster.nuntius.connection;
 
 import android.util.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 
 public class IncomingMessage {
-    private String key;
-    private String action;
-    private String customAction;
+    private EventType eventType;
+    private JsonReader jsonReader;
 
     public IncomingMessage(String message) throws IOException {
         JsonReader reader = new JsonReader(new StringReader(message));
         reader.beginObject();
-        while (reader.hasNext()) {
+        if (reader.hasNext()) {
             String name = reader.nextName();
-            if (name.equals("key")) {
-                key = reader.nextString();
-            } else if (name.equals("action")) {
-                action = reader.nextString();
-            } else if (name.equals("customAction")) {
-                customAction = reader.nextString();
-            } else {
-                reader.skipValue();
+            if (name.equals("event")) {
+                String typeString = reader.nextString();
+                if (typeString.equals("action")) {
+                    eventType = EventType.ACTION;
+                } else if (typeString.equals("dismiss")) {
+                    eventType = EventType.DISMISS;
+                } else if (typeString.equals("blacklist")) {
+                    eventType = EventType.BLACKLIST;
+                } else if (typeString.equals("sms")) {
+                    eventType = EventType.SMS;
+                }
             }
         }
-        reader.endObject();
+        jsonReader = reader;
     }
 
-    public String getAction() {
-        return action;
+    public EventType getEventType() {
+        return eventType;
     }
 
-    public String getKey() {
-        return key;
+    public JsonReader getMsg() {
+        return jsonReader;
     }
 
-    public String getCustomAction() {
-        return customAction;
-    }
 }

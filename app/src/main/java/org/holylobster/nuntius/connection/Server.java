@@ -15,30 +15,33 @@
  * along with Nuntius. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.holylobster.nuntius;
+package org.holylobster.nuntius.connection;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import org.holylobster.nuntius.bluetooth.BluetoothConnectionProvider;
 import org.holylobster.nuntius.network.NetworkConnectionProvider;
 import org.holylobster.nuntius.network.SslNetworkConnectionProvider;
-import org.holylobster.nuntius.notifications.Handler;
-import org.holylobster.nuntius.notifications.IncomingMessage;
+
+import org.holylobster.nuntius.notifications.NotiHandler;
 import org.holylobster.nuntius.notifications.IntentRequestCodes;
-import org.holylobster.nuntius.notifications.Message;
 import org.holylobster.nuntius.notifications.NotificationListenerService;
 
 import java.io.File;
@@ -48,10 +51,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
+
+import org.holylobster.nuntius.sms.SMessage;
+import org.holylobster.nuntius.sms.SmsObservable;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener, ConnectionManager {
+public final class Server extends BroadcastReceiver implements SharedPreferences.OnSharedPreferenceChangeListener, ConnectionManager, Observer {
 
     private static final String TAG = Server.class.getSimpleName();
 
@@ -70,10 +79,13 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private final NotificationListenerService context;
 
+
     public Server(NotificationListenerService context) {
         this.context = context;
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         blacklistedApp = defaultSharedPreferences.getStringSet("BlackList", new HashSet<String>());
+        Log.d(TAG, "server created");
+        SmsObservable.getInstance().addObserver(this);
     }
 
     public static Boolean bluetoothAvailable = null;
@@ -91,13 +103,15 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (filter(sbn)) {
-            sendMessage("notificationPosted", sbn);
+            Message message = new Message("notificationPosted", sbn);
+            sendMessage(message);
         }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {
         if (filter(sbn)) {
-            sendMessage("notificationRemoved", sbn);
+            Message message = new Message("notificationRemoved", sbn);
+            sendMessage(message);
         }
     }
 
@@ -135,9 +149,10 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         return ongoing;
     }
 
-    private void sendMessage(String event, StatusBarNotification sbn) {
+    private void sendMessage(Message message) {
+        //Log.d(TAG, message.toJSON(context));
         for (Connection connection : connections) {
-            boolean queued = connection.enqueue(new Message(event, sbn));
+            boolean queued = connection.enqueue(message);
             if (!queued) {
                 Log.w(TAG, "Unable to enqueue message on connection " + connection);
             }
@@ -293,34 +308,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void manageNotificationActions(IncomingMessage message) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return;
-        }
-        String key = message.getKey();
-        if (key != null) {
-            StatusBarNotification[] activeNotifications = context.getActiveNotifications(new String[] { key });
-
-            if (activeNotifications.length > 0) {
-                StatusBarNotification activeNotification = activeNotifications[0];
-                if ("dismiss".equals(message.getAction())) {
-                    context.cancelNotification(key);
-                } else if (message.getCustomAction() != null) {
-                    for (Notification.Action action : activeNotification.getNotification().actions) {
-                        if (message.getCustomAction().equals(action.title)) {
-                            try {
-                                action.actionIntent.send();
-                            } catch (PendingIntent.CanceledException e) {
-                                Log.e(TAG, "Pending Intent for action " + message.getCustomAction() + " was cancelled.", e);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     private void stopBluetooth() {
         Log.i(TAG, "Stopping server thread.");
         if (bluetoothConnectionProvider != null) {
@@ -352,11 +339,16 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     public void newConnection(Socket socket) {
-        connections.add(new Connection(context, socket, new Handler() {
+        NotiHandler notiHandler = new NotiHandler() {
             @Override
             public void onMessageReceived(IncomingMessage message) {
                 Log.d(TAG, "Message received: " + message);
-                manageNotificationActions(message);
+                try {
+                    message.getEventType().manageEvent(context, message.getMsg());
+                } catch (IOException e) {
+                    Log.e(TAG,"Error when parsing the message\n" + e.getMessage());
+                }
+
             }
 
             @Override
@@ -365,7 +357,36 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 Log.i(TAG, ">>Connection closed (" + connection.getDestination() + ")");
                 notifyListener(getStatusMessage());
             }
-        }));
+        };
+        connections.add(new Connection(context, socket, notiHandler));
         notifyListener(getStatusMessage());
+    }
+
+    public String getContactName(String phoneNumber) {
+        ContentResolver cr = context.getContentResolver();
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+        Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        String contactName = null;
+        if(cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+        }
+
+        if(!cursor.isClosed()) {
+            cursor.close();
+        }
+        return contactName;
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if (data instanceof SMessage) {
+            SMessage sMessage = (SMessage) data;
+
+            sMessage.setSender(getContactName(sMessage.getSenderNum()));
+            sendMessage(new Message(sMessage));
+        }
     }
 }

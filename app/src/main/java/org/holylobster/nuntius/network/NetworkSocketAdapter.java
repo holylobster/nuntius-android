@@ -17,7 +17,7 @@
 
 package org.holylobster.nuntius.network;
 
-import org.holylobster.nuntius.Socket;
+import org.holylobster.nuntius.connection.Socket;
 
 import java.io.IOException;
 import java.io.InputStream;
