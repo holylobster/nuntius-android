@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="dialog_ask_notification_access">Nuntius wymaga dostępu do powiadomień. Po otwarciu ustawień powiadomień proszę zaznaczyć pole wyboru \"Nuntius\" i zatwierdzić, a następnie nacisnąć przycisk Wstecz.</string>
+  <string name="dialog_ask_notification_access">Nuntius wymaga dostępu do powiadomień. Po otwarciu ustawień powiadomień proszę zaznaczyć pole wyboru „Nuntius” i zatwierdzić, a następnie nacisnąć przycisk „Wstecz”.</string>
   <string name="button_got_it">OK</string>
-  <string name="label_welcome_text">Nuntius umożliwia przekazywanie powiadomień na inne urządzenia. Wystarczy włączyć udostępnianie powiadomień dla programu Nuntius po naciśnięciu przycisku \"OK\" i połączyć dane urządzenie za pomocą Bluetooth.</string>
+  <string name="label_welcome_text">Nuntius umożliwia przekazywanie powiadomień na inne urządzenia. Wystarczy włączyć udostępnianie powiadomień dla programu Nuntius po naciśnięciu przycisku „OK” i połączyć dane urządzenie za pomocą Bluetooth.</string>
   <string name="enable_nuntius">Włączenie Nuntiusa</string>
-  <string name="bluetooth_not_available">Bluetooth nie jest dostępny w tym urządzeniu</string>
+  <string name="bluetooth_not_available">Bluetooth nie jest dostępny w tym urządzeniu</string>
   <string name="bluetooth_not_enabled">Nuntius wymaga włączenia Bluetooth</string>
-  <string name="enable_notification_toast_hint">Teraz proszę zaznaczyć pole \"Nuntius\" i zatwierdzić, a następnie nacisnąć przycisk Wstecz.</string>
+  <string name="enable_notification_toast_hint">Teraz proszę zaznaczyć pole „Nuntius” i zatwierdzić, a następnie nacisnąć przycisk „Wstecz”.</string>
   <string name="pref_license_title">Licencja</string>
   <string name="pref_min_notification_priority">Minimalny priorytet powiadomienia</string>
   <string name="pref_min_notification_priority_summary">Ustawia minimalny priorytet powiadomienia, od którego będzie ono udostępniane</string>
@@ -16,13 +16,15 @@
     <item quantity="other">Działanie za pomocą %1$d połączeń.</item>
   </plurals>
   <string name="notification_not_enabled">Nuntius wymaga włączenia dostępu do powiadomień</string>
-  <string name="not_paired">Proszę połączyć urządzenie z komputerem</string>
+  <string name="not_paired">Proszę połączyć urządzenie z komputerem</string>
   <string name="version">Wersja programu Nuntius</string>
   <string name="app_blacklist_title">Aplikacje na czarnej liście</string>
-  <string name="app_blacklist_summary">Ignoruje powiadomienia z wybranych aplikacji</string>
+  <string name="app_blacklist_summary">Ignoruje powiadomienia z wybranych aplikacji</string>
   <string name="blacklisted_title">Aplikacje na czarnej liście</string>
   <string name="blacklist_title">Dodanie aplikacji do czarnej listy</string>
   <string name="added_to_blacklist">Dodano %s do czarnej listy</string>
-  <string name="removed_from_blacklist">Usunięto %s z czarnej listy</string>
+  <string name="removed_from_blacklist">Usunięto %s z czarnej listy</string>
   <string name="undo">Cofnij</string>
+  <string name="ip">Mój adres IP</string>
+  <string name="relaunch_server">Proszę nacisnąć przełącznik, aby ponownie uruchomić serwer.</string>
 </resources>
