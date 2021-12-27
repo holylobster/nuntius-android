@@ -17,9 +17,9 @@
   <string name="notification_not_enabled">Nuntius richiede che l\'accesso alle notifiche sia abilitato</string>
   <string name="not_paired">Accoppia il tuo dispositivo con un computer</string>
   <string name="version">Versione Nuntius</string>
-  <string name="app_blacklist_title">Applicationi in Blacklist</string>
+  <string name="app_blacklist_title">Applicazioni in Blacklist</string>
   <string name="app_blacklist_summary">Ignora notifiche dalle applicazioni selezionate</string>
-  <string name="blacklisted_title">Applicationi in Blacklist</string>
+  <string name="blacklisted_title">Applicazioni in Blacklist</string>
   <string name="blacklist_title">Aggiungi alla Blacklist</string>
   <string name="added_to_blacklist">%s è in blacklist</string>
   <string name="removed_from_blacklist">%s rimossa dalla blacklist</string>
