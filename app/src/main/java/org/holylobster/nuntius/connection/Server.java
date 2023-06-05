@@ -66,8 +66,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     public static final boolean BLUETOOTH_ENABLED = false;
 
-    private boolean ssl = true;
-
     private final List<Connection> connections = new CopyOnWriteArrayList<>();
 
     private BluetoothConnectionProvider bluetoothConnectionProvider;
@@ -185,12 +183,12 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     }
 
     void stopAll() {
-        stopBluetooth();
-        stopNetwork();
         for (Connection connection : connections) {
             connection.close();
         }
         connections.clear();
+        stopBluetooth();
+        stopNetwork();
     }
 
     public String getStatusMessage() {
@@ -207,6 +205,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                 return "...";
             }
         } else {
+            Log.d(TAG, "number of connection: " + getNumberOfConnections());
             if (networkConnectionProvider != null && networkConnectionProvider.isAlive() && getNumberOfConnections() == 0) {
                 return "pair";
             } else if (networkConnectionProvider != null && networkConnectionProvider.isAlive()) {
@@ -235,7 +234,9 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
                     stopBluetooth();
                     break;
                 case BluetoothAdapter.STATE_ON:
-                    startBluetooth();
+                    if (BLUETOOTH_ENABLED) {
+                        startBluetooth();
+                    }
                     break;
             }
         }
@@ -283,12 +284,11 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     private void startNetwork() {
         if (networkAvailable()) {
             try {
-                if (ssl) {
-                    networkConnectionProvider = new SslNetworkConnectionProvider(this, new File(context.getFilesDir(), "custom.bks"));
-                } else {
-                    networkConnectionProvider = new NetworkConnectionProvider(this);
-                }
+                networkConnectionProvider = new SslNetworkConnectionProvider(this, new File(context.getFilesDir(), "custom.bks"));
                 networkConnectionProvider.start();
+                networkConnectionProvider.initializeRegistrationListener();
+                networkConnectionProvider.registerService(context);
+
             } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
                 Log.e(TAG, "Error creating SSL server", e);
             }
@@ -322,6 +322,7 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
 
     private void stopNetwork() {
         if (networkConnectionProvider != null) {
+            networkConnectionProvider.unregisterService();
             networkConnectionProvider.close();
             Log.i(TAG, "Network Server thread stopped.");
         } else {
@@ -334,7 +335,6 @@ public final class Server extends BroadcastReceiver implements SharedPreferences
     private void notifyListener(String status) {
         Intent intent = new Intent(IntentRequestCodes.INTENT_SERVER_STATUS_CHANGE);
         intent.putExtra("status", status);
-        Log.d(TAG, "Sending server status change: " + status);
         context.sendBroadcast(intent);
     }
 

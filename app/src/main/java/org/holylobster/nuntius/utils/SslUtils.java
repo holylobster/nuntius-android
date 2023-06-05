@@ -17,7 +17,12 @@
 
 package org.holylobster.nuntius.utils;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
 
 import org.holylobster.nuntius.activity.SettingsActivity;
 import org.spongycastle.asn1.x500.X500Name;
@@ -109,9 +114,16 @@ public class SslUtils {
                 if (pairAndTrust(chain[0])) {
                     trustManager.checkClientTrusted(chain, authType);
                 } else {
+                    getQrCode();
                     throw e;
                 }
             }
+        }
+
+        private void getQrCode() {
+            Context context = SettingsActivity.getContext();
+            IntentIntegrator integrator = new IntentIntegrator((Activity) context);
+            integrator.initiateScan();
         }
 
         private boolean pairAndTrust(X509Certificate cert) {

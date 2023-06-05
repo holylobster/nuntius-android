@@ -17,6 +17,7 @@
 
 package org.holylobster.nuntius.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -30,6 +31,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
@@ -66,6 +69,7 @@ public class SettingsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        context = this;
 
         try {
             SslUtils.generateSelfSignedCertificate();
@@ -83,7 +87,6 @@ public class SettingsActivity extends ActionBarActivity {
                 .beginTransaction()
                 .replace(R.id.content_frame, new SettingsFragment())
                 .commit();
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -95,6 +98,10 @@ public class SettingsActivity extends ActionBarActivity {
                 currentPairingData = new PairingData(contents);
             }
         }
+    }
+
+    public static Context getContext() {
+        return context;
     }
 
     public static PairingData getCurrentPairingData() {
@@ -111,14 +118,7 @@ public class SettingsActivity extends ActionBarActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
 
-            Preference ip = findPreference("ip");
-            PreferenceScreen screen = getPreferenceScreen();
-            if (Server.BLUETOOTH_ENABLED) {
-                screen.removePreference(ip);
-            } else {
-                ip.setSummary(getLocalIpAddress());
-            }
-            Preference myPref = (Preference) findPreference("qrcode");
+            Preference myPref = findPreference("qrcode");
             myPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 public boolean onPreferenceClick(Preference preference) {
                     IntentIntegrator integrator = new IntentIntegrator(getActivity());
@@ -139,8 +139,7 @@ public class SettingsActivity extends ActionBarActivity {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     String status = intent.getStringExtra("status");
-                    Log.d(TAG, "Received server status change: " + status);
-                    updatePreference(findPreference("main_enable_switch"));
+                    updateSummary(findPreference("main_enable_switch"));
                 }
             };
             getActivity().registerReceiver(br, filter);
@@ -156,23 +155,6 @@ public class SettingsActivity extends ActionBarActivity {
                     updatePreference(preference);
                 }
             }
-        }
-
-        public String getLocalIpAddress() {
-            try {
-                for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                    NetworkInterface intf = en.nextElement();
-                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                        InetAddress inetAddress = enumIpAddr.nextElement();
-                        if (!inetAddress.isLoopbackAddress() && InetAddressUtils.isIPv4Address(inetAddress.getHostAddress())) {
-                            return inetAddress.getHostAddress();
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                Log.e("IP Address", ex.toString());
-            }
-            return null;
         }
 
         private void updatePreference(Preference preference) {
